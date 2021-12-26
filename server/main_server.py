@@ -55,7 +55,7 @@ def remove_user():
             with UserDB() as u:
                 removed = u.delete_user(chat_id, user_name)
                 if removed == 0:
-                    send_back = 'There isn\'t a valid user on this device to remove'
+                    send_back = 'There isn\'t a valid user with this name on this device to remove'
                     return jsonify(message_back=send_back)
 
                 send_back = 'You have been removed :('

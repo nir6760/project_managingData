@@ -62,16 +62,40 @@ CREATE TABLE IF NOT EXISTS public."POLLS_ADMINS"
     CONSTRAINT id_admin_fk FOREIGN KEY (id_admin)
         REFERENCES public."ADMINS" (id_admin) MATCH SIMPLE
         ON UPDATE CASCADE
-        ON DELETE CASCADE
-        NOT VALID,
+        ON DELETE CASCADE,
     CONSTRAINT id_poll_fk FOREIGN KEY (id_poll)
         REFERENCES public."POLLS" (id_poll) MATCH SIMPLE
         ON UPDATE CASCADE
         ON DELETE CASCADE
-        NOT VALID
 )
 
 TABLESPACE pg_default;
 
 ALTER TABLE IF EXISTS public."POLLS_ADMINS"
+    OWNER to postgres;
+
+-- **********************************************************************************************************
+-- Table: public.POLLS_USERS
+
+-- DROP TABLE IF EXISTS public."POLLS_USERS";
+
+CREATE TABLE IF NOT EXISTS public."POLLS_USERS"
+(
+    id_poll text COLLATE pg_catalog."default" NOT NULL,
+    id_user text COLLATE pg_catalog."default" NOT NULL,
+    answer text COLLATE pg_catalog."default",
+    CONSTRAINT "POLLS_USERS_pkey" PRIMARY KEY (id_poll, id_user),
+    CONSTRAINT id_poll_fk FOREIGN KEY (id_poll)
+        REFERENCES public."POLLS" (id_poll) MATCH SIMPLE
+        ON UPDATE CASCADE
+        ON DELETE CASCADE,
+    CONSTRAINT id_user_fk FOREIGN KEY (id_user)
+        REFERENCES public."USERS" (id_user) MATCH SIMPLE
+        ON UPDATE CASCADE
+        ON DELETE CASCADE
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public."POLLS_USERS"
     OWNER to postgres;
