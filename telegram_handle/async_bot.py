@@ -7,7 +7,6 @@ import logging
 
 from aiogram import Bot, Dispatcher, executor, types
 
-from db_utils.db_conn import UserDB
 from exception_types import InvalidUserNameException, DBException
 
 #request python
@@ -161,7 +160,7 @@ You can always get help by /help'''
             await message.reply(my_bot.error_reply)
 
     @dp.message_handler(commands=['MyName'])
-    async def remove(message: types.Message):
+    async def my_name(message: types.Message):
         try:
             chat_id = str(message.chat.id)
             #user_name = parse_user_name(message.text)
@@ -180,6 +179,61 @@ You can always get help by /help'''
             print(e)
             await message.reply(my_bot.error_reply)
 
+    @dp.message_handler(commands=['poll'])
+    async def poll(message_user: types.Message) -> None:
+        """Sends a predefined poll"""
+        answers = ["Good", "Really good", "Fantastic", "Great"]
+        poll = await my_bot.bot.send_poll(
+            message_user.chat.id,
+            "How are you?",
+            answers,
+            is_anonymous=False,
+            allows_multiple_answers=False,
+        )
+        # Save some info about the poll the bot_data for later use in receive_poll_answer
+        payload = {
+            poll.poll.id: {
+                "questions": answers,
+                "message_id": poll.message_id,
+                "chat_id": message_user.chat.id,
+                "answer": poll,
+            }
+        }
+        my_bot.dp.data.update(payload)
+
+    @dp.poll_answer_handler()
+    async def receive_poll_answer(message_user: types.Message) -> None:
+        """Summarize a users poll vote"""
+        bot_data = my_bot.dp.data
+
+        try:
+            poll_id = message_user['poll_id']
+            user_poll = message_user['user']
+            ans_lst = bot_data[poll_id]['questions']
+            answer = ans_lst[message_user['option_ids'][0]]
+            print(user_poll, answer)
+        # this means this poll answer update is from an old poll, we can't do our answering then
+        except KeyError:
+            return
+        # selected_options = answer.option_ids
+        # answer_string = ""
+        # for question_id in selected_options:
+        #     if question_id != selected_options[-1]:
+        #         answer_string += questions[question_id] + " and "
+        #     else:
+        #         answer_string += questions[question_id]
+        # context.bot.send_message(
+        #     context.bot_data[poll_id]["chat_id"],
+        #     f"{update.effective_user.mention_html()} feels {answer_string}!",
+        #     parse_mode=ParseMode.HTML,
+        # )
+        # context.bot_data[poll_id]["answers"] += 1
+        # # Close poll after three participants voted
+        # if context.bot_data[poll_id]["answers"] == 3:
+        #     context.bot.stop_poll(
+        #         context.bot_data[poll_id]["chat_id"], context.bot_data[poll_id]["message_id"]
+        #     )
+
     # send error format for each non recognized request
     @dp.message_handler()
     async def echo(message: types.Message):
@@ -188,8 +242,10 @@ You can always get help by /help'''
 
         await sendFormatErrorToUser(message)
 
+
+
     # run the bot async
-    executor.start_polling(dp, skip_updates=True)
+    executor.start_polling(dp, skip_updates=False)
 
 
 if __name__ == '__main__':

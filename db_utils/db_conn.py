@@ -20,7 +20,7 @@ class UserDB:
             config_db = 'database.ini'
             params = config(os.path.join(self.PROJECT_ROOT, 'db_utils', config_db))
             self.conn = psycopg2.connect(**params)
-            self.conn.set_session(autocommit=True)
+            self.conn.set_session(autocommit=False)
             self.cur = self.conn.cursor()
 
             #self.init_DB() ## run only one time at

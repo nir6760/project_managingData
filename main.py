@@ -6,17 +6,15 @@
 import logging
 from multiprocessing import Process
 
-from db_utils.db_conn import UserDB
-from exception_types import DBException
 from telegram_handle.async_bot import startBot
-from server.main_server import main_server
+from server.main_server import run_app
 
 #import threading
 
 # flask server = main server
 def procss_main_server(name):
     logging.info("Process server %s: starting", name)
-    main_server()
+    run_app()
     logging.info("Process server %s: finishing", name)
 
 #telegram bot server
@@ -28,11 +26,11 @@ def procss_telegram_bot(name):
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    try:
-        # initial DB bt sql script
-        UserDB().init_DB()
-    except DBException as e:
-        print("DB initial error")
+    # try:
+    #     # initial DB bt sql script
+    #     UserDB().init_DB()
+    # except DBException as e:
+    #     print("DB initial error")
 
     format = "%(asctime)s: %(message)s"
     logging.basicConfig(format=format, level=logging.INFO,
