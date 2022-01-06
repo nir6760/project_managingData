@@ -6,39 +6,45 @@ from exception_types import DBException
 from db_sqlalchemy.manytomany.db_server import myApp
 
 from aiogram import Bot, Dispatcher, executor, types
+from flask_cors import cross_origin
 
 def run_app():
     app_obj = myApp()
     app = app_obj.app
     connDBParams_obj = app_obj.connDBParams_obj
-
+    bot = Bot(token=app_obj.MY_TOKEN)
+    dp = Dispatcher(bot)
     @app.route("/")
     async def index():
+        response = jsonify(message="Simple server is running")
+        # Enable Access-Control-Allow-Origin
+        response.headers.add("Access-Control-Allow-Origin", "*")
 
-        bot = Bot(token=app_obj.MY_TOKEN)
-        dp = Dispatcher(bot)
 
+        #
         answers = ["Good", "Really good", "Fantastic", "Great"]
-        m = await bot.send_poll(
+        # await dp.bot.send_message(1332261387, 'gfgfdgdf')
+        m = await dp.bot.send_poll(
             "1332261387",
             "How are you?",
             answers,
             is_anonymous=False,
-            allows_multiple_answers=False,
+            allows_multiple_answers=False
         )
-
-
-
 
         # connDBParams_obj.session_destroy()
         # return "<p>all dropped</p>"
-        return "<p>Admin UI! - Coming Soon</p>"
+        return response
 
 
     @app.route('/register_user', methods=['POST'])
+    @cross_origin()
     def register_user():
+        print('in register user post 1')
         try:
             data = request.json
+            print('in register user post 2')
+            print(data)
             chat_id = data['chat_id']
             user_name = data['user_name']
             try:

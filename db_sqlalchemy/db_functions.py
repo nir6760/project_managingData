@@ -6,20 +6,29 @@ from sqlalchemy import exc
 ## ************************************users functions **********************************************
 # check if user exists
 def is_a_user(id_user, user_name):
+    result = None
     my_app_instance = myApp()
     User = my_app_instance.User_class
     Poll = my_app_instance.Poll_class
     session = my_app_instance.connDBParams_obj.session_factory()
-
-    list_query = session.query(User).filter(User.id_user == id_user,  User.user_name == user_name).all()
-    session.close()
-
-    if len(list_query) != 0:  # An empty result evaluates to False.
-        print("id_user: ", id_user, ":", user_name)
-        return True
-    else:
-        print("no user with this details")
-        return False
+    print(id_user, user_name)
+    try:
+        list_query = session.query(User).filter(User.id_user == id_user).all()
+        session.close()
+        if len(list_query) != 0:  # An empty result evaluates to False.
+            print("id_user: ", id_user, ":", user_name)
+            result =  True
+        else:
+            print("no user with this details")
+            result =  False
+    except exc.IntegrityError as e:
+        print(e)
+        raise DBException
+    except Exception as e:
+        print(e)
+    finally:
+        session.close()
+    return result
 
 # insert a new user to Users db
 def insert_user(id_user, user_name):
@@ -62,27 +71,32 @@ def delete_user(id_user, user_name):
         print("An error as occurred, No rows were deleted")
     finally:
         session.close()
-
     return count_rows
+
+
 
 # select password from specific user
 def getUserName(id_user):
+    result = None
     my_app_instance = myApp()
     User = my_app_instance.User_class
     session = my_app_instance.connDBParams_obj.session_factory()
     try:
         list_query = session.query(User).filter(User.id_user == id_user).all()
 
-        session.close()
+
 
         if len(list_query) != 0:  # An empty result evaluates to False.
             user_name = list_query[0].user_name
-            return True, user_name
+            result = (True, user_name)
         else:
-            return False, None
+            result = (False, None)
 
     except exc.IntegrityError as e:
         raise DBException
+    finally:
+        session.close()
+    return result
 
 
 

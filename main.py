@@ -6,7 +6,7 @@
 import logging
 from multiprocessing import Process
 
-from telegram_handle.async_bot import startBot
+from telegram_bot_server.async_bot import startBot_async
 from server.main_server import run_app
 
 #import threading
@@ -20,7 +20,7 @@ def procss_main_server(name):
 #telegram bot server
 def procss_telegram_bot(name):
     logging.info("Process telegram bot %s: starting", name)
-    startBot()()
+    startBot_async()
     logging.info("Process telegram bot %s: finishing", name)
 
 

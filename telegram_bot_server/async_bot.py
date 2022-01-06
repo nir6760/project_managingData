@@ -5,6 +5,7 @@ It echoes any incoming text messages.
 import json
 import logging
 
+import telebot
 from aiogram import Bot, Dispatcher, executor, types
 
 from exception_types import InvalidUserNameException, DBException
@@ -22,6 +23,7 @@ class MyBot:
         # Initialize bot and dispatcher
         self.bot = Bot(token=self.API_TOKEN)
         self.dp = Dispatcher(self.bot)
+
         self.help_reply = \
             '''/register <user-name> -Register to start
 answering polls via telegram
@@ -38,12 +40,26 @@ if the device is registered to service
                 '''
         self.error_reply = 'An Error occurred, please try again later'
 
+        # Upon calling this function, TeleBot starts polling the Telegram servers for new messages.
+        # - interval: int (default 0) - The interval between polling requests
+        # - timeout: integer (default 20) - Timeout in seconds for long polling.
+        # - allowed_updates: List of Strings (default None) - List of update types to request
+        #self.tb.infinity_polling(interval=0, timeout=20)
+        # getUpdates
+
+
 
 # main function to start bot
-def startBot():
+def startBot_async():
     my_bot = MyBot()
     dp = my_bot.dp
 
+    #updates = my_bot.tb.get_updates()
+
+
+    @my_bot.bot.get_updates
+    def u():
+        print('update')
     @dp.callback_query_handler()
     async def callback_query_handler(call_back):
         cqd = call_back.data
@@ -53,6 +69,7 @@ def startBot():
         if cqd['callback'] == "/register":
             await register(cqd['input_message'])
         # elif cqd == ... ### for other buttons
+
 
     # bot sends welcome for start
     @dp.message_handler(commands=['start'])
@@ -81,16 +98,6 @@ Please choose one of the options:
         """
         This handler will be called when user sends `/help` command
         """
-        # keyboard = types.InlineKeyboardMarkup()
-        # keyboard.add(types.InlineKeyboardButton('Register',callback_data = call_data))
-        # # keyboard.add(types.InlineKeyboardButton('Remove', url='/remove'))
-        # await message.reply(
-        #                     '1) To register Polls service press /register.\n' +
-        #                     '2) To remove from Polls service press /remove'
-        #                     ,
-        #                     reply_markup=keyboard
-        #                     )
-
         await message.reply(my_bot.help_reply)
 
     # parse the user name from register or remove request
@@ -204,7 +211,11 @@ You can always get help by /help'''
     @dp.poll_answer_handler()
     async def receive_poll_answer(message_user: types.Message) -> None:
         """Summarize a users poll vote"""
+        print('here!! in aync')
+        print(message_user)
         bot_data = my_bot.dp.data
+        print(bot_data)
+
 
         try:
             poll_id = message_user['poll_id']
@@ -249,4 +260,4 @@ You can always get help by /help'''
 
 
 if __name__ == '__main__':
-    startBot()
+    startBot_async()

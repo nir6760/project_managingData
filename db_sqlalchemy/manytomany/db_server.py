@@ -1,8 +1,8 @@
 
 from flask import Flask
-
+import datetime
 from db_sqlalchemy.common.base import connDBParams
-from sqlalchemy import Column, String, Table, ForeignKey, ForeignKeyConstraint
+from sqlalchemy import Column, String,INT, Table, ForeignKey, ForeignKeyConstraint, DATE, PrimaryKeyConstraint
 from sqlalchemy.orm import relationship
 
 
@@ -34,41 +34,43 @@ class myApp(metaclass=Singleton):
         self.User_class = User
         Base = self.connDBParams_obj.db
 
-        users_questions_table = Table(
-            'users_questions', Base.metadata,
-            Column('id_user', String, ForeignKey('users.id_user', onupdate="CASCADE", ondelete="CASCADE")),
+        choices_table = Table(
+            'choices', Base.metadata,
+            Column('id_poll', String, ForeignKey('polls.id_poll', onupdate="CASCADE", ondelete="CASCADE")),
+            Column('number', INT),
+            Column('answer', String),
 
-            Column('id_poll', String),
-            Column('id_question', String),
-
-            Column('id_answer', String),
-            ForeignKeyConstraint(('id_poll', 'id_question'),
-                                 ['polls.id_poll', 'polls.id_question'], onupdate="CASCADE", ondelete="CASCADE")
+            PrimaryKeyConstraint('id_poll', 'number', 'answer')
         )
 
+        users_polls_table = Table(
+            'users_polls', Base.metadata,
+            Column('id_user', String, ForeignKey('users.id_user', onupdate="CASCADE", ondelete="CASCADE")),
+            Column('id_poll', String, ForeignKey('polls.id_poll', onupdate="CASCADE", ondelete="CASCADE")),
+            Column('number', INT),
+
+        )
         admins_polls_table = Table(
             'admins_polls', Base.metadata,
             Column('id_admin', String, ForeignKey('admins.id_admin', onupdate="CASCADE", ondelete="CASCADE")),
+            Column('id_poll', String, ForeignKey('polls.id_poll', onupdate="CASCADE", ondelete="CASCADE")),
 
-            Column('id_poll', String),
-            Column('id_question', String),
-
-            ForeignKeyConstraint(('id_poll', 'id_question'),
-                                 ['polls.id_poll', 'polls.id_question'], onupdate="CASCADE", ondelete="CASCADE"),
         )
 
         class Poll(self.connDBParams_obj.db.Model):
             __tablename__ = 'polls'
 
             id_poll = Column(String, primary_key=True)
-            id_question = Column(String, primary_key=True)
+            poll_content = Column(String)
+            date = Column(DATE)
 
-            users_questions_rel = relationship("User", secondary=users_questions_table)
-            admins_polls_rel = relationship("Admin", secondary=admins_polls_table)
+            #users_questions_rel = relationship("User", secondary=choices_table)
 
-            def __init__(self, id_poll, id_question):
+
+            def __init__(self, id_poll, poll_content):
                 self.id_poll = id_poll
-                self.id_question = id_question
+                self.poll_content = poll_content
+                self.date = datetime.date.today()
 
         self.Poll_class = Poll
 
@@ -85,6 +87,10 @@ class myApp(metaclass=Singleton):
                 self.hash_password = hash_password
 
         self.Admin_class = Admin
+
+        users_polls_rel = relationship("Poll", secondary=users_polls_table)
+        polls_admins_rel = relationship("Poll", secondary=admins_polls_table)
+        admins_polls_rel = relationship("Admin", secondary=admins_polls_table)
 
 
 
