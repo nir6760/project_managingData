@@ -1,3 +1,4 @@
+# exceptions
 class PostBodyException(Exception):
     pass
 
