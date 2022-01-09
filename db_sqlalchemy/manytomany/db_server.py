@@ -19,9 +19,7 @@ class Singleton(type):
         return cls._instances[cls]
 
 class myApp(metaclass=Singleton):
-    # generates unique ids
-    def generate_uuid(self):
-        return str(uuid.uuid4())
+
 
     def __init__(self):
         self.MY_TOKEN = "5062861976:AAFl2UAliIU4I5a4JS16SU6X82dOdHcD7cU"
@@ -42,40 +40,22 @@ class myApp(metaclass=Singleton):
         self.User_class = User
         Base = self.connDBParams_obj.db
 
-        # choices_table = Table(
-        #     'choices', Base.metadata,
-        #     Column('id_poll', String, ForeignKey('polls.id_poll', onupdate="CASCADE", ondelete="CASCADE")),
-        #     Column('number', INT),
-        #     Column('answer', String),
-        #
-        #     PrimaryKeyConstraint('id_poll', 'number', 'answer')
-        # )
-
-        # users_polls_table = Table(
-        #     'users_polls', Base.metadata,
-        #     Column('id_user', String, ForeignKey('users.id_user', onupdate="CASCADE", ondelete="CASCADE")),
-        #     Column('id_poll', String, ForeignKey('polls.id_poll', onupdate="CASCADE", ondelete="CASCADE")),
-        #     Column('number', INT),
-        #
-        # )
-        # admins_polls_table = Table(
-        #     'admins_polls', Base.metadata,
-        #     Column('email_admin', String, ForeignKey('admins.email_admin', onupdate="CASCADE", ondelete="CASCADE")),
-        #     Column('id_poll', String, ForeignKey('polls.id_poll', onupdate="CASCADE", ondelete="CASCADE")),
-        #
-        # )
+        # generates unique ids
+        def generate_uuid():
+            return str(uuid.uuid4())
 
         class Poll(self.connDBParams_obj.db.Model):
             __tablename__ = 'polls'
 
-            id_poll = Column(String, name="id_poll", primary_key=True, default=self.generate_uuid())
+            id_poll = Column(String, name="id_poll", primary_key=True, default=generate_uuid())
             poll_content = Column(String)
             date = Column(DATE)
             poll_choice_rel = relationship('Choice', backref='Poll') # one to many
             poll_adminpoll_rel = relationship('AdminPoll', backref='Poll')  # one to many
+            poll_polltelegram_rel = relationship('PollTelegram', backref='Poll')  # one to many
 
-            def __init__(self, id_poll, poll_content):
-                self.id_poll = id_poll
+            def __init__(self, poll_content):
+                self.id_poll = generate_uuid()
                 self.poll_content = poll_content
                 self.date = datetime.date.today()
 
@@ -85,16 +65,29 @@ class myApp(metaclass=Singleton):
             __tablename__ = 'admins'
             email_admin = Column(String, nullable=False, primary_key=True)
             password = Column(String, nullable=False)
+            admin_name = Column(String, nullable=False)
             admin_adminpoll_rel = relationship('AdminPoll', backref='Admin')  # one to many
 
-            def __init__(self, email_admin, password):
+            def __init__(self, email_admin, password, admin_name):
                 self.email_admin = email_admin
                 self.password = generate_password_hash(password)
+                self.admin_name = admin_name
 
             def verify_password(self, pwd):
                 return check_password_hash(self.password, pwd)
 
         self.Admin_class = Admin
+
+        class PollTelegram(self.connDBParams_obj.db.Model):
+            __tablename__ = 'polls_telegram'
+            id_poll = Column('id_poll', String, ForeignKey('polls.id_poll', onupdate="CASCADE", ondelete="CASCADE"), primary_key=True)
+            poll_id_telegram = Column(String, primary_key=True)
+
+            def __init__(self, id_poll, poll_id_telegram):
+                self.id_poll = id_poll
+                self.poll_id_telegram = poll_id_telegram
+
+        self.PollTelegram_class = PollTelegram
 
         class Choice(self.connDBParams_obj.db.Model):
             __tablename__ = 'choices'

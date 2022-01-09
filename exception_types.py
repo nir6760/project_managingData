@@ -10,6 +10,8 @@ class DeleteException(Exception):
 class DBException(Exception):
     pass
 
+class UseException(Exception):
+    pass
 
 class InvalidUserNameException(Exception):
     pass

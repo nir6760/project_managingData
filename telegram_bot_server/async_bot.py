@@ -211,18 +211,18 @@ You can always get help by /help'''
     @dp.poll_answer_handler()
     async def receive_poll_answer(message_user: types.Message) -> None:
         """Summarize a users poll vote"""
-        print('here!! in aync')
         print(message_user)
+        #message_user = {"poll_id": "5969670530423324700", "user": {"id": 1332261387, "is_bot": false, "first_name": "Nir", "language_code": "en"}, "option_ids": [2]}
         bot_data = my_bot.dp.data
         print(bot_data)
-
+        print(type(message_user['user']['id']))
 
         try:
             poll_id = message_user['poll_id']
             user_poll = message_user['user']
             ans_lst = bot_data[poll_id]['questions']
             answer = ans_lst[message_user['option_ids'][0]]
-            print(user_poll, answer)
+            print(type(user_poll['id']))
         # this means this poll answer update is from an old poll, we can't do our answering then
         except KeyError:
             return
