@@ -24,6 +24,7 @@ def run_app():
         #
         answers = ["Good", "Really good", "Fantastic", "Great"]
         # await dp.bot.send_message(1332261387, 'gfgfdgdf')
+
         m = await dp.bot.send_poll(
             "1332261387",
             "How are you?",
@@ -31,6 +32,7 @@ def run_app():
             is_anonymous=False,
             allows_multiple_answers=False
         )
+        print(m.poll)
 
         # connDBParams_obj.session_destroy()
         # return "<p>all dropped</p>"

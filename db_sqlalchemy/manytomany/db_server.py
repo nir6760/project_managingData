@@ -1,9 +1,12 @@
+import uuid
 
 from flask import Flask
 import datetime
 from db_sqlalchemy.common.base import connDBParams
 from sqlalchemy import Column, String,INT, Table, ForeignKey, ForeignKeyConstraint, DATE, PrimaryKeyConstraint
 from sqlalchemy.orm import relationship
+from werkzeug.security import generate_password_hash, check_password_hash
+from flask_login import UserMixin
 
 
 # singeltone class for connDB
@@ -16,6 +19,10 @@ class Singleton(type):
         return cls._instances[cls]
 
 class myApp(metaclass=Singleton):
+    # generates unique ids
+    def generate_uuid(self):
+        return str(uuid.uuid4())
+
     def __init__(self):
         self.MY_TOKEN = "5062861976:AAFl2UAliIU4I5a4JS16SU6X82dOdHcD7cU"
         self.app = Flask(__name__)
@@ -26,6 +33,7 @@ class myApp(metaclass=Singleton):
 
             id_user = Column(String, primary_key=True)
             user_name = Column(String, nullable=False)
+            user_useranswer_rel = relationship('UserAnswer', backref='User')  # one to many
 
             def __init__(self, id_user, user_name):
                 self.id_user = id_user
@@ -34,38 +42,37 @@ class myApp(metaclass=Singleton):
         self.User_class = User
         Base = self.connDBParams_obj.db
 
-        choices_table = Table(
-            'choices', Base.metadata,
-            Column('id_poll', String, ForeignKey('polls.id_poll', onupdate="CASCADE", ondelete="CASCADE")),
-            Column('number', INT),
-            Column('answer', String),
+        # choices_table = Table(
+        #     'choices', Base.metadata,
+        #     Column('id_poll', String, ForeignKey('polls.id_poll', onupdate="CASCADE", ondelete="CASCADE")),
+        #     Column('number', INT),
+        #     Column('answer', String),
+        #
+        #     PrimaryKeyConstraint('id_poll', 'number', 'answer')
+        # )
 
-            PrimaryKeyConstraint('id_poll', 'number', 'answer')
-        )
-
-        users_polls_table = Table(
-            'users_polls', Base.metadata,
-            Column('id_user', String, ForeignKey('users.id_user', onupdate="CASCADE", ondelete="CASCADE")),
-            Column('id_poll', String, ForeignKey('polls.id_poll', onupdate="CASCADE", ondelete="CASCADE")),
-            Column('number', INT),
-
-        )
-        admins_polls_table = Table(
-            'admins_polls', Base.metadata,
-            Column('id_admin', String, ForeignKey('admins.id_admin', onupdate="CASCADE", ondelete="CASCADE")),
-            Column('id_poll', String, ForeignKey('polls.id_poll', onupdate="CASCADE", ondelete="CASCADE")),
-
-        )
+        # users_polls_table = Table(
+        #     'users_polls', Base.metadata,
+        #     Column('id_user', String, ForeignKey('users.id_user', onupdate="CASCADE", ondelete="CASCADE")),
+        #     Column('id_poll', String, ForeignKey('polls.id_poll', onupdate="CASCADE", ondelete="CASCADE")),
+        #     Column('number', INT),
+        #
+        # )
+        # admins_polls_table = Table(
+        #     'admins_polls', Base.metadata,
+        #     Column('email_admin', String, ForeignKey('admins.email_admin', onupdate="CASCADE", ondelete="CASCADE")),
+        #     Column('id_poll', String, ForeignKey('polls.id_poll', onupdate="CASCADE", ondelete="CASCADE")),
+        #
+        # )
 
         class Poll(self.connDBParams_obj.db.Model):
             __tablename__ = 'polls'
 
-            id_poll = Column(String, primary_key=True)
+            id_poll = Column(String, name="id_poll", primary_key=True, default=self.generate_uuid())
             poll_content = Column(String)
             date = Column(DATE)
-
-            #users_questions_rel = relationship("User", secondary=choices_table)
-
+            poll_choice_rel = relationship('Choice', backref='Poll') # one to many
+            poll_adminpoll_rel = relationship('AdminPoll', backref='Poll')  # one to many
 
             def __init__(self, id_poll, poll_content):
                 self.id_poll = id_poll
@@ -74,23 +81,61 @@ class myApp(metaclass=Singleton):
 
         self.Poll_class = Poll
 
-        class Admin(self.connDBParams_obj.db.Model):
+        class Admin(self.connDBParams_obj.db.Model, UserMixin):
             __tablename__ = 'admins'
+            email_admin = Column(String, nullable=False, primary_key=True)
+            password = Column(String, nullable=False)
+            admin_adminpoll_rel = relationship('AdminPoll', backref='Admin')  # one to many
 
-            id_admin = Column(String, primary_key=True)
-            admin_name = Column(String, nullable=False)
-            hash_password = Column(String, nullable=False)
+            def __init__(self, email_admin, password):
+                self.email_admin = email_admin
+                self.password = generate_password_hash(password)
 
-            def __init__(self, id_admin, admin_name, hash_password):
-                self.id_admin = id_admin
-                self.admin_name = admin_name
-                self.hash_password = hash_password
+            def verify_password(self, pwd):
+                return check_password_hash(self.password, pwd)
 
         self.Admin_class = Admin
 
-        users_polls_rel = relationship("Poll", secondary=users_polls_table)
-        polls_admins_rel = relationship("Poll", secondary=admins_polls_table)
-        admins_polls_rel = relationship("Admin", secondary=admins_polls_table)
+        class Choice(self.connDBParams_obj.db.Model):
+            __tablename__ = 'choices'
+            id_poll = Column('id_poll', String, ForeignKey('polls.id_poll', onupdate="CASCADE", ondelete="CASCADE"), primary_key=True)
+            number = Column('number', INT, primary_key=True)
+            answer = Column('answer', String)
+            choice_useranswer_rel = relationship('UserAnswer', backref='Choice')  # one to many
+
+            def __init__(self, id_poll, number, answer):
+                self.id_poll = id_poll
+                self.number = number
+                self.answer = answer
+        self.Choice_class = Choice
+
+        class UserAnswer(self.connDBParams_obj.db.Model):
+            __tablename__ = 'users_answers'
+            id_user = Column('id_user', String, ForeignKey('users.id_user', onupdate="CASCADE", ondelete="CASCADE"), primary_key=True)
+            id_poll = Column('id_poll', String, ForeignKey('polls.id_poll', onupdate="CASCADE", ondelete="CASCADE"), primary_key=True)
+            number = Column('number', INT) # one user answer per poll
+            __table_args__ = (
+                ForeignKeyConstraint(['id_poll', 'number'], ['choices.id_poll', 'choices.number'],),
+            )
+
+            def __init__(self, id_user, id_poll, number):
+                self.id_user = id_user
+                self.id_poll = id_poll
+                self.number = number
+        self.UserAnswer_class = UserAnswer
+
+        class AdminPoll(self.connDBParams_obj.db.Model):
+            __tablename__ = 'admins_polls'
+            email_admin = Column('email_admin', String, ForeignKey('admins.email_admin', onupdate="CASCADE", ondelete="CASCADE"), primary_key=True)
+            id_poll = Column('id_poll', String, ForeignKey('polls.id_poll', onupdate="CASCADE", ondelete="CASCADE"), primary_key=True)
+
+            def __init__(self, email_admin, id_poll):
+                self.email_admin = email_admin
+                self.id_poll = id_poll
+        self.AdminPoll_class = AdminPoll
+
+
+
 
 
 
