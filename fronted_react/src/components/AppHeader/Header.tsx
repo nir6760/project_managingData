@@ -11,7 +11,7 @@ export const Header: React.FC<HeaderProps> = ({
 
     return (
         <div className='header-container'>
-            <h1 className='app-header'> Pickle Rick 🥒 </h1>
+            <img src={require('./logo.png')} />
             <Navbar changePage={changePage}/>
         </div>
     )

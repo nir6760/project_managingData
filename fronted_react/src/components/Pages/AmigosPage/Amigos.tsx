@@ -106,9 +106,9 @@ export const AmigosPage: React.FC<AmigosPageProps> = ({
             <h2> Amigos Page </h2>
             <div className='page-container'>
                 <input onChange={handleInputChange} />
-                <button className='add-button' onClick={addCharacter}> + </button>
-                <button className='add-button' onClick={addRandomCharacter}> Random </button>
-                <button className='add-button' onClick={examplePostRequest}> register test </button>
+                <button className='add-remove-button' onClick={addCharacter}> + </button>
+                <button className='add-remove-button' onClick={addRandomCharacter}> Random </button>
+                <button className='add-remove-button' onClick={examplePostRequest}> register test </button>
             </div>
             <div className='cards-container'>
                 {characters.length > 0 ?

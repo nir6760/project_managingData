@@ -25,11 +25,11 @@ input {
   display: flex;
   align-items: center;
   justify-content: space-around;
-  
+  flex-direction: column;
 }
 .app-header {
-  color: green;
-  font-size: 50px;  
+  color: blue;
+  font-size: 50px;
 }
 
 
@@ -37,7 +37,9 @@ input {
 .nav-tab {
   display: flex;
   flex-direction: row;
-  gap: 5px;
+  gap: 7px;
+  padding-bottom: 20px;
+  padding-top: 10px;
 }
 
 .nav-button {  
@@ -47,10 +49,37 @@ input {
   border-radius: 3px;
   padding: 12px 24px;
   border: 0;
-  color: #000021;
-  background: #1de9b6;
+  color: white;
+  background: #1976D2;
   line-height: 1.15;
-  font-size: 16px;  
+  width: 150px;
+  font-size: 16px;
+  box-shadow: 0px 0px 1px 1px  grey;
+}
+
+.nav-button:hover {  
+  background: #1565C0;
+  box-shadow: 0px 0px 3px 1px  grey;
+}
+
+.nav-sign-out-button {  
+  outline: none;
+  cursor: pointer;
+  font-weight: 600;
+  border-radius: 3px;
+  padding: 12px 24px;
+  border: 0;
+  color: white;
+  background: #da5543;
+  line-height: 1.15;
+  width: 150px;
+  font-size: 16px;
+  box-shadow: 0px 0px 1px 1px  grey;
+}
+
+.nav-sign-out-button:hover {  
+  background: #ad4335;
+  box-shadow: 0px 0px 3px 1px  grey;
 }
 
 .page-container {
@@ -68,13 +97,13 @@ input {
   align-items: center;  
 }
 
-.add-button {
+.add-remove-button {
   display: inline-block;
   outline: 0;
   cursor: pointer;
   text-align: center;
   border: 1px solid #babfc3;
-  padding: 7px 16px;
+  padding: 1px 1px;
   min-height: 36px;
   min-width: 36px;
   color: #202223;
@@ -83,6 +112,19 @@ input {
   font-weight: 500;
   font-size: 20px;
   box-shadow: rgba(0, 0, 0, 0.05) 0px 1px 0px 0px;                
+}
+
+.add-remove-button:hover { 
+  background: #E8F0FE;
+  border: 1px solid #000000;
+}
+
+.answers-box {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  flex-direction: row;
+  gap: 5px;
 }
 
 .cards-container {

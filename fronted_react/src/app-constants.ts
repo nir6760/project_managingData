@@ -1,1 +1,1 @@
-export const pages = ['Amigos', 'About', 'FAQ'];
+export const pages = ['Home', 'New Poll', 'Polls Results', 'Add Admin'];

@@ -21,6 +21,21 @@ export const Navbar: React.FC<NavbarProps> = ({
             case 'FAQ':
                 changePage(2);
                 break;
+            case 'Home':
+                changePage(3);
+                break;
+            case 'New Poll':
+                changePage(4);
+                break;
+            case 'Polls Results':
+                changePage(5);
+                break;
+            case 'Add Admin':
+                changePage(6);
+                break;
+            case 'Sign Out':
+                changePage(7);
+                break;
             default:
                 break;
         }    
@@ -32,6 +47,9 @@ export const Navbar: React.FC<NavbarProps> = ({
                 <button key={page} className='nav-button' onClick={() => handlePageChange(page)}>
                     {page}
                 </button>)}
+            <button key={'Sign Out'} className='nav-sign-out-button' onClick={() => handlePageChange('Sign Out')}>
+                {'Sign Out'}
+            </button>
         </div>
     )
 }
