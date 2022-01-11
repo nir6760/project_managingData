@@ -2,13 +2,15 @@
 from configparser import ConfigParser
 from pathlib import Path
 
+from configuration.config import *
+
 
 def get_project_root() -> Path:
     """Returns project root folder."""
     return Path(__file__).parents[1]
 
 # get configurations for connecting DB
-def config(config_db_path):
+def configFromIniFile(config_db_path):
     section = 'postgresql'
     if len(config_db_path) > 0 and len(section) > 0:
         # Create an instance of ConfigParser class
@@ -31,3 +33,7 @@ def config(config_db_path):
                 db_conn_dict[key] = value
             # Get connection object use above dictionary object
             return db_conn_dict
+
+def config_params():
+    db_conn_dict = {'host': host, 'database': database, 'user': user, 'password': password, 'port': port}
+    return db_conn_dict

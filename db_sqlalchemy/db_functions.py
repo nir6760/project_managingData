@@ -66,15 +66,15 @@ def delete_all_records():
 
 def test_admins():
     print('************** admins **************')
-    insert_admin("nir6769@gmail.com", "123456", "admin_name1")
+    insert_admin("nir6769@gmail.com", "123456")
     print(is_a_admin("nir6760@gmail.com"))
     print(is_a_admin("nir6769@gmail.com"))
     print(is_a_admin_with_password("nir6760@gmail.com", "123456"))
     print(is_a_admin_with_password("nir6769@gmail.com", "123456"))
     delete_admin("nir6760@gmail.com", "123456")
     delete_admin("nir6769@gmail.com", "123456")
-    insert_admin("nir6760_1@gmail.com", "1234567", "admin_name1")
-    insert_admin("nir6760_2@gmail.com", "1234567", "admin_name2")
+    insert_admin("nir6760_1@gmail.com", "1234567")
+    insert_admin("nir6760_2@gmail.com", "1234567")
     print()
 
 

@@ -8,6 +8,7 @@ import logging
 import telebot
 from aiogram import Bot, Dispatcher, executor, types
 
+from configuration.config import bot_key, MY_SERVER_PATH
 from exception_types import InvalidUserNameException, DBException
 
 #request python
@@ -16,8 +17,8 @@ import requests
 
 class MyBot:
     def __init__(self):
-        self.API_TOKEN = "5062861976:AAFl2UAliIU4I5a4JS16SU6X82dOdHcD7cU"
-        self.MY_SERVER_PATH = "http://127.0.0.1:5000"
+        self.API_TOKEN = bot_key
+        self.MY_SERVER_PATH = MY_SERVER_PATH
         # Configure logging
         logging.basicConfig(level=logging.INFO)
         # Initialize bot and dispatcher
@@ -213,19 +214,39 @@ You can always get help by /help'''
         """Summarize a users poll vote"""
         print(message_user)
         #message_user = {"poll_id": "5969670530423324700", "user": {"id": 1332261387, "is_bot": false, "first_name": "Nir", "language_code": "en"}, "option_ids": [2]}
-        bot_data = my_bot.dp.data
-        print(bot_data)
-        print(type(message_user['user']['id']))
 
         try:
-            poll_id = message_user['poll_id']
-            user_poll = message_user['user']
-            ans_lst = bot_data[poll_id]['questions']
-            answer = ans_lst[message_user['option_ids'][0]]
-            print(type(user_poll['id']))
+            poll_id_telegram = str(message_user['poll_id'])
+            chat_id = str(message_user['user']['id'])
+            answer_number = message_user['option_ids'][0]
+            print('poll_id_telegram : ', poll_id_telegram)
+            print('chat_id : ', chat_id)
+            print('answer_number : ', str(answer_number))
+
+            request_res = requests.post(my_bot.MY_SERVER_PATH + '/user_answer'
+                                        , json=
+                                        {'chat_id': chat_id,
+                                         'poll_id_telegram': poll_id_telegram,
+                                         'answer_number': answer_number
+                                         })
+
+            message_back = json.loads(request_res.content.decode('utf8'))
+            if message_back['message_back'] == "general_error_reply":
+                await message_user.reply(my_bot.error_reply)
+            else:
+                await message_user.reply(message_back['message_back'])
+
+        except InvalidUserNameException as e:
+            await sendFormatErrorToUser(message_user)
+
+
         # this means this poll answer update is from an old poll, we can't do our answering then
         except KeyError:
             return
+
+        except Exception as e:
+            print(e)
+            await message.reply(my_bot.error_reply)
         # selected_options = answer.option_ids
         # answer_string = ""
         # for question_id in selected_options:

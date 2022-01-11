@@ -1,7 +1,7 @@
 import os
 
 from flask_sqlalchemy import SQLAlchemy
-from db_utils.config_db import config, get_project_root
+from db_utils.config_db import config_params, get_project_root
 
 from sqlalchemy.schema import DropTable
 from sqlalchemy.ext.compiler import compiles
@@ -15,7 +15,7 @@ class connDBParams():
     def __init__(self, app):
         self.PROJECT_ROOT = get_project_root()
         self.config_db = 'database.ini'
-        self.params = config(os.path.join(self.PROJECT_ROOT, 'db_utils', self.config_db))
+        self.params = config_params()
         self.user_name = self.params['user']
         self.password = self.params['password']
         self.host = self.params['host']

@@ -2,8 +2,10 @@ import uuid
 
 from flask import Flask
 import datetime
+
+from configuration.config import bot_key
 from db_sqlalchemy.common.base import connDBParams
-from sqlalchemy import Column, String,INT, Table, ForeignKey, ForeignKeyConstraint, DATE, PrimaryKeyConstraint
+from sqlalchemy import Column, String, INT, Table, ForeignKey, ForeignKeyConstraint, DATE, PrimaryKeyConstraint
 from sqlalchemy.orm import relationship
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
@@ -19,10 +21,8 @@ class Singleton(type):
         return cls._instances[cls]
 
 class myApp(metaclass=Singleton):
-
-
     def __init__(self):
-        self.MY_TOKEN = "5062861976:AAFl2UAliIU4I5a4JS16SU6X82dOdHcD7cU"
+        self.MY_TOKEN = bot_key
         self.app = Flask(__name__)
         self.connDBParams_obj = connDBParams(app=self.app)
 
@@ -63,15 +63,15 @@ class myApp(metaclass=Singleton):
 
         class Admin(self.connDBParams_obj.db.Model, UserMixin):
             __tablename__ = 'admins'
-            email_admin = Column(String, nullable=False, primary_key=True)
+            admin_name = Column(String, nullable=False, primary_key=True)
             password = Column(String, nullable=False)
-            admin_name = Column(String, nullable=False)
+            token = Column(String, name="token",nullable=False , unique=True, default=generate_uuid())
             admin_adminpoll_rel = relationship('AdminPoll', backref='Admin')  # one to many
 
-            def __init__(self, email_admin, password, admin_name):
-                self.email_admin = email_admin
-                self.password = generate_password_hash(password)
+            def __init__(self,admin_name , password):
                 self.admin_name = admin_name
+                self.password = generate_password_hash(password)
+                self.token = generate_uuid()
 
             def verify_password(self, pwd):
                 return check_password_hash(self.password, pwd)
@@ -119,11 +119,11 @@ class myApp(metaclass=Singleton):
 
         class AdminPoll(self.connDBParams_obj.db.Model):
             __tablename__ = 'admins_polls'
-            email_admin = Column('email_admin', String, ForeignKey('admins.email_admin', onupdate="CASCADE", ondelete="CASCADE"), primary_key=True)
+            token = Column('token', String, ForeignKey('admins.token', onupdate="CASCADE", ondelete="CASCADE"), primary_key=True)
             id_poll = Column('id_poll', String, ForeignKey('polls.id_poll', onupdate="CASCADE", ondelete="CASCADE"), primary_key=True)
 
-            def __init__(self, email_admin, id_poll):
-                self.email_admin = email_admin
+            def __init__(self, token, id_poll):
+                self.token = token
                 self.id_poll = id_poll
         self.AdminPoll_class = AdminPoll
 

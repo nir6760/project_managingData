@@ -13,16 +13,16 @@ const theme = createTheme();
 export const NewPoll = () => {
     const [answersList, setAnswersList] = useState([{ answer: "" }]);
 
-    const handleAnswersInputChange = (e, index) => {
+    const handleAnswersInputChange = (e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>, index: number) => {
         const { name, value } = e.target;
         const list = [...answersList];
-        list[index][name] = value;
+        //list[index][name] = value;
         setAnswersList(list);
     };
 
     function handleAnswersRemoveClick(index: string) {
         const list = [...answersList];
-        list.splice(index, 1);
+        //list.splice(index, 1);
         setAnswersList(list);
     }
 
@@ -49,20 +49,20 @@ export const NewPoll = () => {
 
     const [filterQuestion, setFillterQuestion] = React.useState('');
 
-    const handleChange = (event) => {
+    const handleChange = (event: { target: { value: React.SetStateAction<string>; }; }) => {
         setFillterQuestion(event.target.value);
     };
 
-    const handleFilterInputChange = (e, index) => {
+    const handleFilterInputChange = (e: { target: { name: any; value: any; }; }, index: string | number) => {
         const { name, value } = e.target;
         const list = [...filterList];
-        list[index][name] = value;
+        //list[index][name] = value;
         setFilterList(list);
     };
 
     function handleFilterRemoveClick(index: string) {
         const list = [...filterList];
-        list.splice(index, 1);
+        //list.splice(index, 1);
         setFilterList(list);
     }
 
@@ -123,7 +123,7 @@ export const NewPoll = () => {
                                     onChange={e => handleAnswersInputChange(e, i)}
                                 />
                                 <div className="answers-box">
-                                    {answersList.length !== 1 && <button className='add-remove-button' onClick={() => handleAnswersRemoveClick(i)}>-</button>}
+                                    {answersList.length !== 1 && <button className='add-remove-button' onClick={() => handleAnswersRemoveClick(i.toString())}>-</button>}
                                     {answersList.length - 1 === i && <button className='add-remove-button' onClick={handleAnswersAddClick}>+</button>}
                                 </div>
                             </div>
@@ -161,7 +161,7 @@ export const NewPoll = () => {
                                     // onChange={handleChange}
                                 />
                                 <div className="answers-box">
-                                    {filterList.length !== 1 && <button className='add-remove-button' onClick={() => handleFilterRemoveClick(i)}>-</button>}
+                                    {filterList.length !== 1 && <button className='add-remove-button' onClick={() => handleFilterRemoveClick(i.toString())}>-</button>}
                                     {filterList.length - 1 === i && <button className='add-remove-button' onClick={handleFilterAddClick}>+</button>}
                                 </div>
                             </div>

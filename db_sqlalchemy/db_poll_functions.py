@@ -112,6 +112,7 @@ def getChoicesForPoll(id_poll):
 # insert a new poll with choices to Poll db and Choice db
 def insert_poll(poll_content, numbers_choices_dict):
     # check for unique values
+    id_poll = None
     flag = len(numbers_choices_dict) != len(set(numbers_choices_dict.values()))
     if flag:
         raise UseException
@@ -128,6 +129,7 @@ def insert_poll(poll_content, numbers_choices_dict):
     except Exception as e:
         print(e)
         raise e
+    return id_poll
 
 
 # delete poll from Polls db
@@ -156,10 +158,10 @@ def delete_poll(id_poll):
 
 
 # delete poll from Polls db
-def delete_poll_from_admin(email_admin, password, id_poll):
+def delete_poll_by_admin(token, id_poll):
     count_rows = 0
     try:
-        is_admin_poll = is_a_admin_poll(email_admin, password, id_poll)
+        is_admin_poll = is_a_admin_poll(token, id_poll)
         if is_admin_poll:
             count_rows = delete_poll(id_poll)
             print("A total of %s rows were deleted." % count_rows)
@@ -206,7 +208,6 @@ def getFullPollData(id_poll):
     result = (False, None)
     my_app_instance = myApp()
     Poll = my_app_instance.Poll_class
-    session = my_app_instance.connDBParams_obj.session_factory()
     try:
         poll_date_res = getPollContentAndDate(id_poll)
         if poll_date_res[0]:
@@ -226,8 +227,7 @@ def getFullPollData(id_poll):
     except Exception as e:
         print(e)
         raise e
-    finally:
-        session.close()
+
     return result
 
 ## ************************************polls_telegram functions **********************************************
@@ -238,7 +238,7 @@ def is_a_poll_telegram(id_poll, poll_id_telegram):
     PollTelegram = my_app_instance.PollTelegram_class
     session = my_app_instance.connDBParams_obj.session_factory()
     try:
-        poll_telegram = PollTelegram.query.filter_by(email_admin=id_poll, poll_id_telegram=poll_id_telegram).first()
+        poll_telegram = PollTelegram.query.filter_by(id_poll=id_poll, poll_id_telegram=poll_id_telegram).first()
         if poll_telegram:
             print("poll_telegram exists: ", id_poll, " : ", poll_id_telegram)
             result = True
@@ -323,6 +323,29 @@ def getAssociatesPollsIdsTelegramToPoll(id_poll):
         else:
             result = (False, None)
 
+    except exc.IntegrityError as e:
+        raise DBException
+    except Exception as e:
+        print(e)
+        raise e
+    finally:
+        session.close()
+    return result
+
+# get id_poll for specific poll_id_telegram
+def getIdPollByPollIdTelegram(poll_id_telegram):
+    result = (False, None)
+    my_app_instance = myApp()
+    PollTelegram = my_app_instance.PollTelegram_class
+    session = my_app_instance.connDBParams_obj.session_factory()
+    try:
+        list_query = session.query(PollTelegram).filter(PollTelegram.poll_id_telegram == poll_id_telegram).all()
+
+        if len(list_query) != 0:  # An empty result evaluates to False.
+            id_poll = list_query[0].id_poll
+            result = (True, id_poll)
+        else:
+            result = (False, None)
     except exc.IntegrityError as e:
         raise DBException
     except Exception as e:

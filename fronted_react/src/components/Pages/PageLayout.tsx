@@ -1,6 +1,5 @@
 import React from 'react';
 import '../../App.css';
-import { SignIn } from '../../signIn';
 import { Character } from '../../types';
 import { About } from './AboutPage/About';
 import { AmigosPage } from './AmigosPage/Amigos';
@@ -9,13 +8,12 @@ import { Home } from './HomePage/Home';
 import { NewPoll } from './NewPollPage/NewPoll';
 import { PollsResults } from './PollsResultsPage/PollsResults';
 import { AddAdmin } from './AddAdminPage/AddAdmin';
-import changePage from '../../App'
+import { SignIn } from './UnAuth/SignIn';
 
 export interface PageLayoutProps {
     page: number;
     characters: Character[];
     setCharacters: React.Dispatch<React.SetStateAction<Character[]>>;
-    changePage(newPage: number): void;
 }
 export const PageLayout: React.FC<PageLayoutProps> = ({
     page,
@@ -36,10 +34,26 @@ export const PageLayout: React.FC<PageLayoutProps> = ({
             return <NewPoll />
         case 5:
             return <PollsResults />
-        case 6:
-            return <AddAdmin />
-        case 7:
-            return <SignIn changePage={changePage}/> 
+        default:
+            return null;            
+    }
+}
+
+
+
+export interface PageLayoutUnAuthProps {
+    pageUnAuth: number;
+    setToken(newToken: string): void;
+}
+export const PageLayoutUnAuth: React.FC<PageLayoutUnAuthProps> = ({
+    pageUnAuth,
+    setToken,
+}) => {
+    switch(pageUnAuth) {
+        case 0:
+            return <SignIn setToken={setToken}/>           
+        case 1:
+            return <AddAdmin setToken={setToken} />
         default:
             return null;            
     }

@@ -4,7 +4,7 @@ from exception_types import DBException, UseException
 from db_sqlalchemy.manytomany.db_server import myApp
 from sqlalchemy import exc
 
-from db_sqlalchemy.db_admin_functions import is_a_admin_with_password, is_a_admin_poll
+from db_sqlalchemy.db_admin_functions import is_a_admin_poll, is_a_admin_token
 
 
 ## ************************************users functions **********************************************
@@ -107,13 +107,13 @@ def getUserName(id_user):
 
 
 # get user_name specific user
-def getAllUsersChatIdsLst(email_admin, password):
+def getAllUsersChatIdsLst(token):
     all_chat_ids_lst = []
     my_app_instance = myApp()
     User = my_app_instance.User_class
     session = my_app_instance.connDBParams_obj.session_factory()
     try:
-        if is_a_admin_with_password(email_admin, password):  # get this only if the real admin asked
+        if is_a_admin_token(token):  # get this only if the real admin asked
             list_query = session.query(User).all()
             for row in list_query:
                 all_chat_ids_lst.append(row.id_user)
@@ -247,10 +247,10 @@ def getAnswersForPoll(id_poll):
 
 
 # get all answers from specific poll
-def getAnswersForPollByAdmin(email_admin, password, id_poll):
+def getAnswersForPollByAdmin(token, id_poll):
     result = (False, None)
     try:
-        is_admin_poll = is_a_admin_poll(email_admin, password, id_poll)
+        is_admin_poll = is_a_admin_poll(token, id_poll)
         if is_admin_poll:
             result = getAnswersForPoll(id_poll)
     except DBException:
@@ -262,10 +262,10 @@ def getAnswersForPollByAdmin(email_admin, password, id_poll):
 
 
 # get all answers from specific poll
-def getChatIdsForAnswerInPollByAdmin(email_admin, password, id_poll, answer_number):
+def getChatIdsForAnswerInPollByAdmin(token, id_poll, answer_number):
     chat_ids_lst = []
     try:
-        users_answers_dict_exists, users_answers_dict = getAnswersForPollByAdmin(email_admin, password, id_poll)
+        users_answers_dict_exists, users_answers_dict = getAnswersForPollByAdmin(token, id_poll)
         if users_answers_dict_exists:
             # filter dictionary to contain only users who answered answer_number
             users_answers_new_dict = dict(filter(lambda elem: elem[1] == answer_number, users_answers_dict.items()))
