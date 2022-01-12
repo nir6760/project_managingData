@@ -47,7 +47,7 @@ class myApp(metaclass=Singleton):
         class Poll(self.connDBParams_obj.db.Model):
             __tablename__ = 'polls'
 
-            id_poll = Column(String, name="id_poll", primary_key=True, default=generate_uuid())
+            id_poll = Column(String, name="id_poll", primary_key=True)
             poll_content = Column(String)
             date = Column(DATE)
             poll_choice_rel = relationship('Choice', backref='Poll') # one to many
@@ -55,7 +55,7 @@ class myApp(metaclass=Singleton):
             poll_polltelegram_rel = relationship('PollTelegram', backref='Poll')  # one to many
 
             def __init__(self, poll_content):
-                self.id_poll = generate_uuid()
+                #self.id_poll = generate_uuid()
                 self.poll_content = poll_content
                 self.date = datetime.date.today()
 
