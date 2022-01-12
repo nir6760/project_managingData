@@ -7,7 +7,7 @@ import { Character } from './types';
 function App() {
 
   const [characters, setCharacters] = React.useState<Character[]>([]);
-  const [page, setPage] = React.useState<number>(3);
+  const [page, setPage] = React.useState<number>(1);
 
   const changePage = (newPage: number) => {
     setPage(newPage);
