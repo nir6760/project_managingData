@@ -6,23 +6,26 @@ import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import MenuItem from '@mui/material/MenuItem';
+import 'antd/dist/antd.css';
+import { Table } from 'antd';
 
 const theme = createTheme();
 
 export const NewPoll = () => {
+
+    // Question + Answers
     const [answersList, setAnswersList] = useState([{ answer: "" }]);
 
-    const handleAnswersInputChange = (e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>, index: number) => {
-        const { name, value } = e.target;
+    const handleAnswersInputChange = (e:any, index:any) => {
+        const value = e.target.value;
         const list = [...answersList];
-        //list[index][name] = value;
+        list[index] = value;
         setAnswersList(list);
     };
 
     function handleAnswersRemoveClick(index: string) {
         const list = [...answersList];
-        //list.splice(index, 1);
+        list.splice(+index, 1);
         setAnswersList(list);
     }
 
@@ -30,60 +33,106 @@ export const NewPoll = () => {
         setAnswersList([...answersList, { answer: "" }]);
     };
 
-    const [filterList, setFilterList] = useState([{ question: "", answer: ""}]);
-
-    const questions = [
+    // Filters
+    const columns = [
         {
-            key: '',
-            question: '',
+          title: "Questions and Answers",
+          dataIndex: "data",
+          key: "data"
         },
+    ];
+
+    const data = [
         {
             key: '0',
-            question: 'How are you?',
+            data: 'How are you?',
+            children: [
+                {
+                    key: '0_0',
+                    data: 'Good',
+                },
+                {
+                    key: '0_1',
+                    data: 'Bad',
+                },
+                {
+                    key: '0_2',
+                    data: 'Not bad',
+                },
+                {
+                    key: '0_3',
+                    data: 'Perfect',
+                },
+            ],
         },
         {
-            key: '1',
-            question: 'How old are you?',
+            key: 1,
+            data: 'How old are you?',
+            children: [
+                {
+                    key: '1_0',
+                    data: '0-10',
+                },
+                {
+                    key: '1_1',
+                    data: '10-15',
+                },
+                {
+                    key: '1_2',
+                    data: '15-20',
+                },
+                {
+                    key: '1_3',
+                    data: '20-25',
+                },
+                {
+                    key: '1_4',
+                    data: '25-30',
+                },
+                {
+                    key: '1_5',
+                    data: '30-40',
+                },
+            ],
         },
-      ];
+    ];
 
-    const [filterQuestion, setFillterQuestion] = React.useState('');
+    const [filterList, setFilterList] = useState([{ key: "", data: "" }]);
 
-    const handleChange = (event: { target: { value: React.SetStateAction<string>; }; }) => {
-        setFillterQuestion(event.target.value);
+    // rowSelection objects indicates the need for row selection
+    const rowSelection = {
+        onChange: (selectedRowKeys:any, selectedRows:any) => {
+            console.log(`selectedRowKeys: ${selectedRowKeys}`, 'selectedRows: ', selectedRows);
+            setFilterList(selectedRowKeys);
+        },
+        onSelect: (record:any, selected:any, selectedRows:any) => {
+            console.log(record, selected, selectedRows);
+            setFilterList(selected);
+        },
+        onSelectAll: (selected:any, selectedRows:any, changeRows:any) => {
+            console.log(selected, selectedRows, changeRows);
+            setFilterList(selected);
+        },
     };
 
-    const handleFilterInputChange = (e: { target: { name: any; value: any; }; }, index: string | number) => {
-        const { name, value } = e.target;
-        const list = [...filterList];
-        //list[index][name] = value;
-        setFilterList(list);
-    };
-
-    function handleFilterRemoveClick(index: string) {
-        const list = [...filterList];
-        //list.splice(index, 1);
-        setFilterList(list);
-    }
-
-    const handleFilterAddClick = () => {
-        setFilterList([...filterList, { question: "", answer: ""}]);
-    };
+    const checkStrictly = false;
 
     const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         const data = new FormData(event.currentTarget);
         // eslint-disable-next-line no-console
         console.log({
-          Question: data.get('question'),
-          Answer: answersList
+            Question: data.get('question'),
+            Answers: [data.get('answer1'), ...answersList],
+            Filter: filterList
         });
+        alert("The poll has been successfully submitted!")
       };
     
       return (
         <ThemeProvider theme={theme}>
             <h1> New Poll </h1>
-            <Container component="main" maxWidth="lg">
+            <Container component="main" maxWidth="md">
                 <Box
                     sx={{
                         marginTop: 1,
@@ -95,7 +144,7 @@ export const NewPoll = () => {
                 > 
                     <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
                         <Typography component="h5" variant="h6">
-                            Add a question and possible answers
+                            Add a question
                         </Typography>
                         <TextField
                             margin="normal"
@@ -107,6 +156,20 @@ export const NewPoll = () => {
                             autoComplete="question"
                             autoFocus
                         />
+                        <Typography component="h5" variant="h6">
+                            <br></br>
+                            Add possible answers
+                        </Typography>
+                        <TextField
+                            margin="normal"
+                            required
+                            fullWidth
+                            name='answer1'
+                            label="Answer"
+                            type="answer"
+                            id="answer"
+                            autoComplete="current-answer"
+                        />
                         {answersList.map((x, i) => {
                             return (
                             <div className="answers-box">
@@ -115,7 +178,7 @@ export const NewPoll = () => {
                                     required
                                     fullWidth
                                     name='answer'
-                                    label="Answer"
+                                    label='Answer'
                                     type="answer"
                                     id="answer"
                                     autoComplete="current-answer"
@@ -133,40 +196,14 @@ export const NewPoll = () => {
                         <br></br>
                             Filter relevant targets according to previous answers
                         </Typography>
-                        {filterList.map((x, i) => {
-                            return (
-                            <div className="answers-box">
-                                <TextField
-                                    margin="normal"
-                                    id="outlined-select-currency"
-                                    select
-                                    fullWidth
-                                    label="Question"
-                                    value={filterQuestion}
-                                    onChange={handleChange}
-                                >
-                                {questions.map((option) => (
-                                    <MenuItem key={option.key} value={option.key}>
-                                        {option.question}
-                                    </MenuItem>
-                                ))}
-                                </TextField>
-                                <TextField
-                                    margin="normal"
-                                    id="outlined-select-currency"
-                                    select
-                                    fullWidth
-                                    label="Answer"
-                                    // value={filterQuestion}
-                                    // onChange={handleChange}
-                                />
-                                <div className="answers-box">
-                                    {filterList.length !== 1 && <button className='add-remove-button' onClick={() => handleFilterRemoveClick(i.toString())}>-</button>}
-                                    {filterList.length - 1 === i && <button className='add-remove-button' onClick={handleFilterAddClick}>+</button>}
-                                </div>
-                            </div>
-                        );
-                        })}
+                        <br></br>
+                        <>
+                            <Table
+                                columns={columns}
+                                rowSelection={{ ...rowSelection, checkStrictly }}
+                                dataSource={data}
+                            />
+                        </>
                         <Button
                             type="submit"
                             fullWidth
