@@ -246,7 +246,7 @@ You can always get help by /help'''
 
         except Exception as e:
             print(e)
-            await message.reply(my_bot.error_reply)
+            await message_user.reply(my_bot.error_reply)
         # selected_options = answer.option_ids
         # answer_string = ""
         # for question_id in selected_options:

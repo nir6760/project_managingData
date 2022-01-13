@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import './App.css';
 import { Header, HeaderUnAuth } from './components/AppHeader/Header';
 import { PageLayout, PageLayoutUnAuth } from './components/Pages/PageLayout';
@@ -22,27 +22,27 @@ function App() {
 
   const [characters, setCharacters] = React.useState<Character[]>([]);
   const [page, setPage] = React.useState<number>(pageAuthInt);
-  const [pageUnAuth, setPageUnAuth] = React.useState<number>(pageUnAuthInt);
+  const [pageUnAuth] = React.useState<number>(pageUnAuthInt);
   const { token, setToken } = useToken();
 
   const changePage = (newPage: number) => {
     setPage(newPage);
     // Think about validations...    
   }
-  const changePageUnAuth = (newPage: number) => {
-    setPageUnAuth(newPage);
+  // const changePageUnAuth = (newPage: number) => {
+  //   setPageUnAuth(newPage);
       
   
-    localStorage.setItem('pageUnAuth', `${newPage}`);
-    // Think about validations...    
-  }
+  //   localStorage.setItem('pageUnAuth', `${newPage}`);
+  //   // Think about validations...    
+  // }
   
   if(!token || token === "no_token") {
     console.log('redirect to signIn page');
     return (
       
       <div className="root">
-         <HeaderUnAuth setToken={setToken} changePageUnAuth={changePageUnAuth}/>
+         <HeaderUnAuth/>
          <PageLayoutUnAuth pageUnAuth={pageUnAuth} setToken={setToken}/>
       </div>
     );

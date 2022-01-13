@@ -3,7 +3,7 @@ import json
 import telegram
 from flask import request, jsonify
 
-from configuration.config import server_port, local_host
+from configuration.config import server_port, local_host, super_admin_name, super_admin_password, super_admin_token
 from db_sqlalchemy.db_functions import *
 
 from exception_types import DBException
@@ -12,6 +12,14 @@ from db_sqlalchemy.manytomany.db_server import myApp
 from aiogram import Bot, Dispatcher, executor, types
 from flask_cors import cross_origin
 
+import base64
+
+
+# init DB from scratch
+def init_DB_from_scratch():
+    drop_cascade_all()
+    print('Init DB from scratch with super admin')
+    insert_admin_and_token(super_admin_name, super_admin_password, super_admin_token)
 
 def run_app():
     app_obj = myApp()
@@ -19,44 +27,31 @@ def run_app():
     connDBParams_obj = app_obj.connDBParams_obj
     bot = Bot(token=app_obj.MY_TOKEN)
     dp = Dispatcher(bot)
-
     DBErrorReply = "DB_error_reply"
     GeneralErrorReplay = "general_error_reply"
 
+    init_DB_from_scratch()
+    def decode_base64(message_bytes):
+        message_bytes = base64.b64decode(message_bytes)
+        translated_message = message_bytes.decode('utf-8')
+        return translated_message
+    def encode_base64(message):
+        message_bytes = message.encode('utf-8')
+        message_bytes = base64.b64encode(message_bytes)
+        message_encrypt = message_bytes.decode('utf-8')
+        return message_encrypt
+
     @app.route("/")
     async def index():
-        response = jsonify(message="Simple server is running")
-        # Enable Access-Control-Allow-Origin
-        response.headers.add("Access-Control-Allow-Origin", "*")
-
-        #
-        answers = ["Good", "Really good", "Fantastic", "Great"]
-        # await dp.bot.send_message(1332261387, 'gfgfdgdf')
-
-        m = await dp.bot.send_poll(
-            "1332261387",
-            "How are you?",
-            answers,
-            is_anonymous=False,
-            allows_multiple_answers=False
-        )
-        print(m.poll)
-        # poll = {"id": "5969670530423324700", "question": "How are you?",
-        #  "options": [{"text": "Good", "voter_count": 0}, {"text": "Really good", "voter_count": 0},
-        #              {"text": "Fantastic", "voter_count": 0}, {"text": "Great", "voter_count": 0}],
-        #  "total_voter_count": 0, "is_closed": false, "is_anonymous": false, "type": "regular",
-        #  "allows_multiple_answers": false}
-
-        # connDBParams_obj.session_destroy()
-        # return "<p>all dropped</p>"
-        return response
+        return "PoolsBot Server :)" \
+               "\nSearch channel on telegram"
 
     ## ***********************************************users post ***********************************************
     @app.route('/register_user', methods=['POST'])
     def register_user():
         print('in register user post 1')
         try:
-            data = request.json
+            data = request.get_json(force=True)
             print('in register user post 2')
             print(data)
             chat_id = data['chat_id']
@@ -84,7 +79,7 @@ def run_app():
     @app.route('/remove_user', methods=['POST'])
     def remove_user():
         try:
-            data = request.json
+            data = request.get_json(force=True)
             chat_id = data['chat_id']
             user_name = data['user_name']
             print('request is ' + str(data))
@@ -110,7 +105,7 @@ def run_app():
     @app.route('/my_name_user', methods=['POST'])
     def my_name():
         try:
-            data = request.json
+            data = request.get_json(force=True)
             chat_id = data['chat_id']
             try:
 
@@ -136,7 +131,7 @@ def run_app():
     @app.route('/user_answer', methods=['POST'])
     def user_answer():
         try:
-            data = request.json
+            data = request.get_json(force=True)
             poll_id_telegram = data['poll_id_telegram']
             chat_id = data['chat_id']
             answer_number = data['answer_number']
@@ -158,6 +153,36 @@ def run_app():
         except Exception as e:
             send_back = GeneralErrorReplay
             return jsonify(message_back=send_back), 500
+
+    ## ***********************************************admin - super admin - post ***********************************************
+    # not an UI request
+    @app.route('/remove_admin', methods=['POST'])
+    def remove_admin():
+        try:
+            data = request.get_json(force=True)
+            admin_name = data['admin_name']
+            password = decode_base64(data['password'])
+            try:
+                if admin_name == super_admin_name and password == super_admin_password:
+                    removed = delete_admin(admin_name, password)
+                    if removed == 0:
+                        send_back = 'There isn\'t a valid admin with this name on this device to remove'
+                        return jsonify(message_back=send_back)
+
+                    send_back = 'Admin have been removed '
+                    return jsonify(message_back=send_back)
+                else:
+                    send_back = 'You are not the super admin'
+                    return jsonify(error=send_back)
+
+            except DBException as e:
+                print(e)
+                send_back = DBErrorReply
+                return jsonify(error=send_back), 400
+
+        except Exception as e:
+            send_back = GeneralErrorReplay
+            return jsonify(error=send_back), 500
     ## ***********************************************admin post ***********************************************
     @app.route('/login_admin', methods=['POST'])
     @cross_origin()
@@ -165,21 +190,22 @@ def run_app():
         try:
             data = request.get_json(force=True)
             admin_name = data['admin_name']
-            password = data['password']
+            password = decode_base64(data['password'])
             try:
                 token_exists, token_name = getTokenAndNameByAdminNamePassword(admin_name, password)
                 if token_exists:
                     token = token_name[0]
+                    token = encode_base64(token)
                     admin_name = token_name[1]
                     response = jsonify(token=token, admin_name=admin_name)
                     return response
                 else:
-                    send_back = "admin name registered"
+                    send_back = "admin not exists"
                     response = jsonify(error=send_back)
                     return response
             except DBException as e:
                 print(e)
-                send_back = "admin name must be unique"
+                send_back = GeneralErrorReplay
                 response = jsonify(error=send_back)
                 return response
         except Exception as e:
@@ -191,38 +217,30 @@ def run_app():
     @app.route('/register_admin', methods=['POST'])
     @cross_origin()
     def register_admin():
-        # send_back = 'worrkkkk!!!!!!'
-        # response = app.response_class(
-        #     response=json.dumps({"hey":"hey1"}),
-        #     mimetype='application/json'
-        # )
-        # # response = jsonify(message_back=send_back)
-        # # response.headers.add('Access-Control-Allow-Origin', '*')
-        # # response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
-        # # response.headers.add('Access-Control-Allow-Methods', 'POST')
-        # return response
         try:
             data = request.get_json(force=True)
-            admin_name = data['admin_name']
-            password = data['password']
+            new_admin_name = data['admin_name']
+            password = decode_base64(data['password'])
+            token = decode_base64(data['token'])
             try:
-                is_admin = is_a_admin(admin_name)
-                if is_admin:
-                    send_back = "sorry, user name already taken"
-                    response = jsonify(error=send_back)
-                    return response
-                token = insert_admin(admin_name, password)
-                if token is not None:
-                    send_back = token
-                    response = jsonify(token=send_back, admin_name=admin_name)
-                    return response
+                if is_a_admin_token(token):
+                    is_admin = is_a_admin(new_admin_name)
+                    if is_admin:
+                        send_back = "Sorry, user name already taken"
+                        response = jsonify(error=send_back)
+                        return response
+                    new_token = insert_admin(new_admin_name, password)
+                    if new_token is not None:
+                        send_back = new_token
+                        response = jsonify(token=send_back)
+                        return response
                 else:
-                    send_back = "sorry, user name already taken"
+                    send_back = "You must be an admin to add admins"
                     response = jsonify(error=send_back)
                     return response
             except DBException as e:
                 print(e)
-                send_back = "sorry, user name already taken"
+                send_back = "Sorry, user name already taken"
                 response = jsonify(error=send_back)
                 return response
         except Exception as e:
@@ -232,38 +250,12 @@ def run_app():
             #response.headers.add("Access-Control-Allow-Origin", "*")
             return response
 
-    @app.route('/remove_admin', methods=['POST'])
-    def remove_admin():
-        try:
-            data = request.json
-            admin_name = data['admin_name']
-            password = data['password']
-            try:
-
-                removed = delete_admin(admin_name, password)
-                if removed == 0:
-                    send_back = 'There isn\'t a valid admin with this name on this device to remove'
-                    return jsonify(message_back=send_back)
-
-                send_back = 'Admin have been removed '
-                return jsonify(message_back=send_back)
-
-            except DBException as e:
-                print(e)
-                send_back = DBErrorReply
-                return jsonify(error=send_back), 400
-
-        except Exception as e:
-            send_back = GeneralErrorReplay
-            return jsonify(error=send_back), 500
-
     @app.route('/my_name_admin', methods=['POST'])
     def my_name_admin():
         try:
-            data = request.json
-            token = data['token']
+            data = request.get_json(force=True)
+            token = decode_base64(data['token'])
             try:
-
                 admin_name_exists, admin_name = getAdminNameByToken(token)
 
                 if admin_name_exists:
@@ -283,19 +275,52 @@ def run_app():
             send_back = GeneralErrorReplay
             return jsonify(error=send_back), 500
 
-    @app.route('/get_associates_polls', methods=['POST'])
-    def get_associates_polls():
+    @app.route('/admins_name_list', methods=['POST'])
+    def admins_name_list():
         try:
-            data = request.json
-            token = data['token']
+            data = request.get_json(force=True)
+            token = decode_base64(data['token'])
             try:
-                associates_polls_exists, associates_polls_lst = getAssociatesPollsToAdmin(token)
+                if is_a_admin_token(token):
+                    admins_list_exists, admins_list = getAdminsList()
+                    if admins_list_exists:
+                        send_back = admins_list
+                        return jsonify(message_back=send_back)
+                    else:
+                        send_back = 'This admin isn\'t registered!'
+                        return jsonify(error=send_back)
+                else:
+                    send_back = 'This admin isn\'t registered!'
+                    return jsonify(error=send_back)
 
-                if associates_polls_exists:
-                    send_back = associates_polls_lst
+            except DBException as e:
+                print(e)
+                send_back = DBErrorReply
+                return jsonify(error=send_back), 400
+
+        except Exception as e:
+            send_back = GeneralErrorReplay
+            return jsonify(error=send_back), 500
+
+    ## ***********************************************poll - super admin - post ***********************************************
+    @app.route('/remove_poll', methods=['POST'])
+    def remove_poll():
+        try:
+            data = request.get_json(force=True)
+            admin_name = data['admin_name']
+            password = decode_base64(data['password'])
+            id_poll = data['id_poll']
+            try:
+                if admin_name == super_admin_name and password == super_admin_password:
+                    removed = delete_poll(id_poll)
+                    if removed == 0:
+                        send_back = 'There isn\'t a valid admin_poll to remove'
+                        return jsonify(message_back=send_back)
+
+                    send_back = 'poll have been removed '
                     return jsonify(message_back=send_back)
                 else:
-                    send_back = 'This admin has\'nt  any polls'
+                    send_back = 'You are not the super admin'
                     return jsonify(error=send_back)
 
             except DBException as e:
@@ -308,37 +333,6 @@ def run_app():
             return jsonify(error=send_back), 500
 
     ## ***********************************************poll post ***********************************************
-
-    @app.route('/register_poll', methods=['POST'])
-    @cross_origin()
-    def register_poll():
-        try:
-            data = request.json
-            token = data['token']
-            poll_content = data['poll_content']
-            numbers_choices_dict = data['numbers_choices_dict']
-            # poll_id_telegram = data['poll_id_telegram'] #for
-            # users_chat_id_lst = data['users_chat_id_lst']
-
-            try:
-                id_poll = insert_poll(poll_content, numbers_choices_dict)
-                insert_admin_poll(token, id_poll)  # token admin exists because registration poll is from the UI
-                send_back = 'poll have been registered'
-                return jsonify(message_back=send_back)
-            except UseException as e:
-                print(e)
-                send_back = "use exception, answers must be unique"
-                return jsonify(error=send_back)
-            except DBException as e:
-                print(e)
-                send_back = DBErrorReply
-                return jsonify(error=send_back), 400
-
-        except Exception as e:
-            print(e)
-            send_back = GeneralErrorReplay
-            return jsonify(error=send_back), 500
-
     async def send_a_poll(users_chat_id_lst, poll_content, numbers_choices_dict):
         answers_lst = list(numbers_choices_dict.values())
         poll_id_telegram_lst = []
@@ -355,30 +349,57 @@ def run_app():
             poll_id_telegram_lst.append(poll_id_telegram)
         return poll_id_telegram_lst
 
-    @app.route('/send_poll', methods=['POST'])
-    @cross_origin()
-    async def send_poll_and_register_poll_telegram():
+    async def send_a_poll_and_register_to_poll_telegram(id_poll, users_chat_id_lst, poll_content, numbers_choices_dict):
+        poll_id_telegram_lst = await send_a_poll(users_chat_id_lst, poll_content, numbers_choices_dict)
+        for poll_id_telegram in poll_id_telegram_lst:
+            insert_poll_telegram(id_poll,
+                                 poll_id_telegram)  # token admin exists because registration poll is from the UI
+        return True
+
+    @app.route('/register_and_send_poll', methods=['POST'])
+    async def register_and_send_poll():
         try:
-            data = request.json
-            token = data['token']
-            id_poll = data['id_poll']
+            data = request.get_json(force=True)
+            token = decode_base64(data['token'])
             poll_content = data['poll_content']
             numbers_choices_dict = data['numbers_choices_dict']
-            users_chat_id_lst = data['users_chat_id_lst']
+            idPoll_answer_lst = data['idPoll_answer_lst']
+
             try:
                 if is_a_admin_token(token):
-                    poll_id_telegram_lst = await send_a_poll(users_chat_id_lst, poll_content, numbers_choices_dict)
-                    for poll_id_telegram in poll_id_telegram_lst:
-                        insert_poll_telegram(id_poll, poll_id_telegram)  # email admin exists because registration poll is from the UI
-                    send_back = 'poll have been sent'
-                    return jsonify(message_back=send_back)
+                    if len(idPoll_answer_lst) == 0:
+                        # no filtering
+                        users_chat_id_lst = getAllUsersChatIdsLst()
+                    else:
+                        # filter
+                        users_chat_id_lst = getChatIdLstToSend(idPoll_answer_lst)
+                    if len(users_chat_id_lst) == 0:
+                        send_back = 'No users at the mailing list for the poll.\n' \
+                                    'Try other filtering or no filter at all'
+                        return jsonify(error=send_back), 400
+                    # register poll
+                    id_poll = insert_poll(poll_content, numbers_choices_dict)
+                    insert_admin_poll(token, id_poll)  # token admin exists because registration poll is from the UI
+                    send_back = 'poll have been registered'
+                    # send a poll
+                    res_sending = await send_a_poll_and_register_to_poll_telegram(id_poll, users_chat_id_lst, poll_content, numbers_choices_dict)
+                    if res_sending:
+                        send_back = 'Poll has been sent'
+                        return jsonify(message_back=send_back)
+                    else:
+                        send_back = "Sorry, an error occurred, poll has\'nt been sent to all users"
+                        return jsonify(error=send_back)
                 else:
-                    send_back = 'this is not an admin request'
-                    return jsonify(error=send_back), 401
+                    send_back = "Sorry, an error occurred, poll has\'nt been registered"
+                    return jsonify(error=send_back)
+            except ParsingException as e:
+                print(e)
+                send_back = "Error while parsing your input to the server"
+                return jsonify(error=send_back), 400
             except UseException as e:
                 print(e)
-                send_back = "use exception, answers must be unique"
-                return jsonify(error=send_back), 400
+                send_back = "Each answer of the poll must be unique!"
+                return jsonify(error=send_back)
             except DBException as e:
                 print(e)
                 send_back = DBErrorReply
@@ -389,35 +410,11 @@ def run_app():
             send_back = GeneralErrorReplay
             return jsonify(error=send_back), 500
 
-    @app.route('/remove_poll', methods=['POST'])
-    def remove_poll():
-        try:
-            data = request.json
-            token = data['token']
-            id_poll = data['id_poll']
-            try:
-
-                removed = delete_poll_by_admin(token, id_poll)
-                if removed == 0:
-                    send_back = 'There isn\'t a valid admin_poll to remove'
-                    return jsonify(message_back=send_back)
-
-                send_back = 'poll have been removed '
-                return jsonify(message_back=send_back)
-
-            except DBException as e:
-                print(e)
-                send_back = DBErrorReply
-                return jsonify(error=send_back), 400
-
-        except Exception as e:
-            send_back = GeneralErrorReplay
-            return jsonify(error=send_back), 500
 
     @app.route('/get_poll_details', methods=['POST'])
     def get_poll_details():
         try:
-            data = request.json
+            data = request.get_json(force=True)
             # token = data['token'] # no need to be admin  for poll details
             id_poll = data['id_poll']
             try:
@@ -438,22 +435,53 @@ def run_app():
         except Exception as e:
             send_back = GeneralErrorReplay
             return jsonify(error=send_back), 500
-
+    ## ***********************************************data polls and answers post ***********************************************
     @app.route('/get_poll_answers', methods=['POST'])
     def get_poll_answers():
         try:
-            data = request.json
-            token = data['token']
+            data = request.get_json(force=True)
+            token = decode_base64(data['token'])
             id_poll = data['id_poll']
             try:
-                answers_data_exists, answers_data_dict = getAnswersForPollByAdmin(token, id_poll)
+                answers_hist_exists, answers_hist_dict = creatHistogramForSpecificPoll(token, id_poll)
 
-                if answers_data_exists:
-                    send_back = answers_data_dict
+                if answers_hist_exists:
+                    send_back = answers_hist_dict
                     return jsonify(message_back=send_back)
                 else:
                     send_back = 'This poll isn\'t registered!'
                     return jsonify(error=send_back)
+
+            except DBException as e:
+                print(e)
+                send_back = DBErrorReply
+                return jsonify(error=send_back), 400
+
+        except Exception as e:
+            send_back = GeneralErrorReplay
+            return jsonify(error=send_back), 500
+
+    @app.route('/get_associated_polls', methods=['POST'])
+    def get_associated_polls():
+        try:
+            data = request.get_json(force=True)
+            token = decode_base64(data['token'])
+            try:
+                if is_a_admin_token(token):
+                    associated_polls_exist, associated_polls = getAssociatesPollsToAdmin("nir6760")
+                    if associated_polls_exist:
+                        if len(associated_polls) == 0:
+                            send_back = associated_polls
+                            return jsonify(result_lst=send_back)
+                        else:
+                            send_back = "You don't have polls yet"
+                            return jsonify(error=send_back)
+                    else:
+                        send_back = "You Are not An Admin"
+                        return jsonify(error=send_back), 404
+                else:
+                    send_back = "You Are not An Admin"
+                    return jsonify(error=send_back), 404
 
             except DBException as e:
                 print(e)

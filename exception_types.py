@@ -6,6 +6,8 @@ class PostBodyException(Exception):
 class DeleteException(Exception):
     pass
 
+class ParsingException(Exception):
+    pass
 
 class DBException(Exception):
     pass

@@ -5,7 +5,7 @@ import datetime
 
 from configuration.config import bot_key
 from db_sqlalchemy.common.base import connDBParams
-from sqlalchemy import Column, String, INT, Table, ForeignKey, ForeignKeyConstraint, DATE, PrimaryKeyConstraint
+from sqlalchemy import Column, String, INT, INTEGER, Table, ForeignKey, ForeignKeyConstraint, DATE, PrimaryKeyConstraint
 from sqlalchemy.orm import relationship
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
@@ -47,7 +47,7 @@ class myApp(metaclass=Singleton):
         class Poll(self.connDBParams_obj.db.Model):
             __tablename__ = 'polls'
 
-            id_poll = Column(String, name="id_poll", primary_key=True)
+            id_poll = Column(INTEGER, name="id_poll", primary_key=True)
             poll_content = Column(String)
             date = Column(DATE)
             poll_choice_rel = relationship('Choice', backref='Poll') # one to many
@@ -63,15 +63,18 @@ class myApp(metaclass=Singleton):
 
         class Admin(self.connDBParams_obj.db.Model, UserMixin):
             __tablename__ = 'admins'
-            admin_name = Column(String, nullable=False, primary_key=True)
+            admin_name = Column(String, name="admin_name",  primary_key=True)
             password = Column(String, nullable=False)
-            token = Column(String, name="token",nullable=False , unique=True, default=generate_uuid())
+            token = Column(String, name="token", nullable=False, unique=True, default=generate_uuid())
             admin_adminpoll_rel = relationship('AdminPoll', backref='Admin')  # one to many
 
-            def __init__(self,admin_name , password):
+            def __init__(self, admin_name, password, token=None):
                 self.admin_name = admin_name
                 self.password = generate_password_hash(password)
-                self.token = generate_uuid()
+                if token is not None:
+                    self.token = token
+                else:
+                    self.token = generate_uuid()
 
             def verify_password(self, pwd):
                 return check_password_hash(self.password, pwd)
@@ -80,7 +83,7 @@ class myApp(metaclass=Singleton):
 
         class PollTelegram(self.connDBParams_obj.db.Model):
             __tablename__ = 'polls_telegram'
-            id_poll = Column('id_poll', String, ForeignKey('polls.id_poll', onupdate="CASCADE", ondelete="CASCADE"), primary_key=True)
+            id_poll = Column('id_poll', INTEGER, ForeignKey('polls.id_poll', onupdate="CASCADE", ondelete="CASCADE"), primary_key=True)
             poll_id_telegram = Column(String, primary_key=True)
 
             def __init__(self, id_poll, poll_id_telegram):
@@ -91,7 +94,7 @@ class myApp(metaclass=Singleton):
 
         class Choice(self.connDBParams_obj.db.Model):
             __tablename__ = 'choices'
-            id_poll = Column('id_poll', String, ForeignKey('polls.id_poll', onupdate="CASCADE", ondelete="CASCADE"), primary_key=True)
+            id_poll = Column('id_poll', INTEGER, ForeignKey('polls.id_poll', onupdate="CASCADE", ondelete="CASCADE"), primary_key=True)
             number = Column('number', INT, primary_key=True)
             answer = Column('answer', String)
             choice_useranswer_rel = relationship('UserAnswer', backref='Choice')  # one to many
@@ -105,7 +108,7 @@ class myApp(metaclass=Singleton):
         class UserAnswer(self.connDBParams_obj.db.Model):
             __tablename__ = 'users_answers'
             id_user = Column('id_user', String, ForeignKey('users.id_user', onupdate="CASCADE", ondelete="CASCADE"), primary_key=True)
-            id_poll = Column('id_poll', String, ForeignKey('polls.id_poll', onupdate="CASCADE", ondelete="CASCADE"), primary_key=True)
+            id_poll = Column('id_poll', INTEGER, ForeignKey('polls.id_poll', onupdate="CASCADE", ondelete="CASCADE"), primary_key=True)
             number = Column('number', INT) # one user answer per poll
             __table_args__ = (
                 ForeignKeyConstraint(['id_poll', 'number'], ['choices.id_poll', 'choices.number'],),
@@ -120,7 +123,7 @@ class myApp(metaclass=Singleton):
         class AdminPoll(self.connDBParams_obj.db.Model):
             __tablename__ = 'admins_polls'
             token = Column('token', String, ForeignKey('admins.token', onupdate="CASCADE", ondelete="CASCADE"), primary_key=True)
-            id_poll = Column('id_poll', String, ForeignKey('polls.id_poll', onupdate="CASCADE", ondelete="CASCADE"), primary_key=True)
+            id_poll = Column('id_poll', INTEGER, ForeignKey('polls.id_poll', onupdate="CASCADE", ondelete="CASCADE"), primary_key=True)
 
             def __init__(self, token, id_poll):
                 self.token = token

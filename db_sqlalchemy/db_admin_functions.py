@@ -1,4 +1,5 @@
 # coding=utf-8
+from db_sqlalchemy.db_utils_func import getFullPollData
 from exception_types import DBException, UseException
 from db_sqlalchemy.manytomany.db_server import myApp
 from sqlalchemy import exc
@@ -107,6 +108,28 @@ def insert_admin(admin_name, password):
     return token
 
 
+# insert a new admin to Admins db
+def insert_admin_and_token(admin_name, password, token):
+    my_app_instance = myApp()
+    Admin = my_app_instance.Admin_class
+    session = my_app_instance.connDBParams_obj.session_factory()
+    try:
+        new_admin = Admin(admin_name, password, token)
+        session.add(new_admin)
+        session.commit()
+        token = new_admin.token  # id_poll is the autoincremented primary_key column. Should work after commit
+        print("Admin was inserted")
+    except exc.IntegrityError as e:
+        print(e)
+        raise DBException
+    except Exception as e:
+        print(e)
+        raise e
+    finally:
+        session.close()
+    return token
+
+
 # delete admin from Admins db
 def delete_admin(admin_name, password):
     my_app_instance = myApp()
@@ -183,6 +206,7 @@ def getAdminNameByToken(token):
         session.close()
     return result
 
+
 # get token by specific admin details
 def getTokenAndNameByAdminNamePassword(admin_name, password):
     result = (False, (None, None))
@@ -202,7 +226,7 @@ def getTokenAndNameByAdminNamePassword(admin_name, password):
                 result = (False, (None, None))
         else:
             print("no admin with this details")
-            result = False
+            result = (False, (None, None))
         session.close()
     except exc.IntegrityError as e:
         raise DBException
@@ -294,6 +318,17 @@ def create_associates_polls_lst(list_query):
     return res_lst
 
 
+# create list from list query of associates polls
+def create_associates_full_polls_lst(list_query):
+    res_lst = []
+    for row in list_query:
+        poll_data_exists, poll_data_dict = getFullPollData(row.id_poll)
+        if poll_data_exists:
+            poll_data_dict["id_poll"] = row.id_poll
+            res_lst.append(poll_data_dict)
+    return res_lst
+
+
 # get associates polls to specific admin
 def getAssociatesPollsToAdmin(token):
     result = (False, None)
@@ -304,7 +339,64 @@ def getAssociatesPollsToAdmin(token):
         list_query = session.query(AdminPoll).filter(AdminPoll.token == token).all()
 
         if len(list_query) != 0:  # An empty result evaluates to False.
-            associates_polls_lst = create_associates_polls_lst(list_query)
+            associates_polls_lst = create_associates_full_polls_lst(
+                list_query)  # create_associates_polls_lst(list_query)
+            result = (True, associates_polls_lst)
+        else:
+            result = (False, None)
+
+    except exc.IntegrityError as e:
+        raise DBException
+    except Exception as e:
+        print(e)
+        raise e
+    finally:
+        session.close()
+    return result
+
+
+# get associates polls to specific admin
+def isPollofAdmin(token, id_poll):
+    result = False
+    my_app_instance = myApp()
+    AdminPoll = my_app_instance.AdminPoll_class
+    session = my_app_instance.connDBParams_obj.session_factory()
+    try:
+        list_query = session.query(AdminPoll).filter(AdminPoll.token == token, AdminPoll.id_poll == id_poll).all()
+
+        if len(list_query) != 0:  # An empty result evaluates to False.
+            result = True
+        else:
+            result = False
+
+    except exc.IntegrityError as e:
+        raise DBException
+    except Exception as e:
+        print(e)
+        raise e
+    finally:
+        session.close()
+    return result
+
+
+# create list from list query (names) of associates admins
+def create_admins_names_lst(list_query):
+    res_lst = []
+    for row in list_query:
+        res_lst.append(row.admin_name)
+    return res_lst
+
+
+# get admins list
+def getAdminsList():
+    result = (False, None)
+    my_app_instance = myApp()
+    Admin = my_app_instance.Admin_class
+    session = my_app_instance.connDBParams_obj.session_factory()
+    try:
+        list_query = session.query(Admin).all()
+        if len(list_query) != 0:  # An empty result evaluates to False.
+            associates_polls_lst = create_admins_names_lst(list_query)
             result = (True, associates_polls_lst)
         else:
             result = (False, None)

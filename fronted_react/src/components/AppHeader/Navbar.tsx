@@ -65,10 +65,10 @@ export const NavbarUnAuth: React.FC<NavbarUnAuthProps> = ({
             case 'Sign In':
                 changePageUnAuth(0);
                 break;
-            case 'Sign Up':
-                console.log('sign up pressed');
-                changePageUnAuth(1);
-                break;
+            // case 'Sign Up':
+            //     console.log('sign up pressed');
+            //     changePageUnAuth(1);
+            //     break;
             default:
                 break;
         }    

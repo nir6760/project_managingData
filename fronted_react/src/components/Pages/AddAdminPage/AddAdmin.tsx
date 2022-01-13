@@ -6,11 +6,14 @@ import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import { serverPath } from '../../../app-constants';
+import { serverPath, base64, utf8} from '../../../app-constants';
+import useToken from '../../../useToken';
+
+
 
 async function sigUpUser(credentials: any) {
     //Simple POST request with a JSON body using fetch
-    let token:string = "no_token";
+    let new_token:string = "no_token";
     let my_admin_name:string = "no_name";
   
     const requestOptions1 = {
@@ -23,34 +26,31 @@ async function sigUpUser(credentials: any) {
         var response_json = await response.json();
         console.log(response_json);
         if (response_json.hasOwnProperty('token')) {
-          token = response_json['token'];
+          new_token = response_json['token'];
           my_admin_name = response_json['admin_name'];
           console.log(response_json['token']);
       }
       else {
           alert(response_json['error']);
-          token="error";
+          new_token="error";
       }
         
     } catch (e) {
-        token="error";
+      new_token="error";
       console.log('error connection');
       alert('Connection Error - Please check your internet connection');
         //console.error(e);
     }
-    return {token, my_admin_name}
+    return {new_token, my_admin_name}
   }
 
 
 const theme = createTheme();
 
-export interface AddAdminProps {
-    setToken(newToken: string): void;
-  }
+
   
-  export const AddAdmin: React.FC<AddAdminProps> = ({
-    setToken,
-  }) => {   
+  export const AddAdmin  = () => {   
+    const { token, setToken } = useToken();
     localStorage.setItem('pageUnAuth', '1');
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
@@ -62,18 +62,19 @@ export interface AddAdminProps {
           return;
         }
         //reister user
-        const {token, my_admin_name} = await sigUpUser({
+        const {new_token, my_admin_name} = await sigUpUser({
           admin_name: admin_name,
-          password: password
+          password: base64.encode(utf8.encode(password)),
+          token: base64.encode(utf8.encode(token))
         });
         
-        if(token==="error"){
+        if(new_token==="error"){
             return;
         }
         else {
-            alert('You have been registered, redirect to Home');
-            localStorage.setItem('admin_name', my_admin_name);
-            setToken(token);
+            alert('Admin has been added to system');
+            // localStorage.setItem('admin_name', my_admin_name);
+            // setToken(token);
             
         }
       };

@@ -1,5 +1,5 @@
 # coding=utf-8
-
+from db_sqlalchemy.db_utils_func import getChoicesForPoll
 from exception_types import DBException, UseException
 from db_sqlalchemy.manytomany.db_server import myApp
 from sqlalchemy import exc
@@ -107,16 +107,15 @@ def getUserName(id_user):
 
 
 # get user_name specific user
-def getAllUsersChatIdsLst(token):
+def getAllUsersChatIdsLst():
     all_chat_ids_lst = []
     my_app_instance = myApp()
     User = my_app_instance.User_class
     session = my_app_instance.connDBParams_obj.session_factory()
     try:
-        if is_a_admin_token(token):  # get this only if the real admin asked
-            list_query = session.query(User).all()
-            for row in list_query:
-                all_chat_ids_lst.append(row.id_user)
+        list_query = session.query(User).all()
+        for row in list_query:
+            all_chat_ids_lst.append(row.id_user)
         session.close()
     except exc.IntegrityError as e:
         print(e)
@@ -246,6 +245,25 @@ def getAnswersForPoll(id_poll):
     return result
 
 
+# create histogram from answers to specific poll
+def creatHistogramForSpecificPoll(token, id_poll):
+    answers_hist_dict = {}
+    numbers_answers_exists, numbers_answers_dict = getChoicesForPoll(id_poll)
+    if numbers_answers_exists:
+        for key, value in numbers_answers_dict.items():
+            answers_hist_dict[value] = 0
+        answers_for_poll_exists, answer_for_poll_dict = getAnswersForPollByAdmin(token, id_poll)
+        if answers_for_poll_exists:
+            for key, value in answer_for_poll_dict.items():
+                poll_content = numbers_answers_dict[value]
+                if value in answers_hist_dict:
+                    answers_hist_dict[poll_content] += 1
+                else:
+                    answers_hist_dict[poll_content] = 1
+
+    return answers_hist_dict
+
+
 # get all answers from specific poll
 def getAnswersForPollByAdmin(token, id_poll):
     result = (False, None)
@@ -262,10 +280,26 @@ def getAnswersForPollByAdmin(token, id_poll):
 
 
 # get all answers from specific poll
-def getChatIdsForAnswerInPollByAdmin(token, id_poll, answer_number):
+def getChatIdsForAnswerInPollByAdminToken(token, id_poll, answer_number):
     chat_ids_lst = []
     try:
         users_answers_dict_exists, users_answers_dict = getAnswersForPollByAdmin(token, id_poll)
+        if users_answers_dict_exists:
+            # filter dictionary to contain only users who answered answer_number
+            users_answers_new_dict = dict(filter(lambda elem: elem[1] == answer_number, users_answers_dict.items()))
+            chat_ids_lst = list(users_answers_new_dict.keys())
+    except DBException:
+        raise DBException
+    except Exception as e:
+        print("An error as occurred, No rows were deleted")
+        raise e
+    return chat_ids_lst
+
+# get all answers from specific poll
+def getChatIdsForAnswerInPoll(id_poll, answer_number):
+    chat_ids_lst = []
+    try:
+        users_answers_dict_exists, users_answers_dict = getAnswersForPoll(id_poll)
         if users_answers_dict_exists:
             # filter dictionary to contain only users who answered answer_number
             users_answers_new_dict = dict(filter(lambda elem: elem[1] == answer_number, users_answers_dict.items()))

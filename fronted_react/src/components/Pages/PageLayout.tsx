@@ -34,8 +34,10 @@ export const PageLayout: React.FC<PageLayoutProps> = ({
             return <NewPoll />
         case 5:
             return <PollsResults />
+        case 6:
+            return <AddAdmin/>
         default:
-            return null;            
+            return <Home />;            
     }
 }
 
@@ -52,9 +54,7 @@ export const PageLayoutUnAuth: React.FC<PageLayoutUnAuthProps> = ({
     switch(pageUnAuth) {
         case 0:
             return <SignIn setToken={setToken}/>           
-        case 1:
-            return <AddAdmin setToken={setToken} />
         default:
-            return null;            
+            return <SignIn setToken={setToken}/>;            
     }
 }
