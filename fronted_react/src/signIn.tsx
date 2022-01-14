@@ -12,8 +12,13 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { styled } from '@mui/styles';
 
 const theme = createTheme();
+
+const MyTextField = styled(TextField)({
+  background: 'linear-gradient(45deg, #b3e5fc 10%, white 100%)',
+});
 
 export interface SignInProps {
   changePage(newPage: number): void;
@@ -57,7 +62,7 @@ export const SignIn: React.FC<SignInProps> = ({
             Sign In
           </Typography>
           <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
-            <TextField
+            <MyTextField
               margin="normal"
               required
               fullWidth
@@ -67,7 +72,7 @@ export const SignIn: React.FC<SignInProps> = ({
               autoComplete="username"
               autoFocus
             />
-            <TextField
+            <MyTextField
               margin="normal"
               required
               fullWidth

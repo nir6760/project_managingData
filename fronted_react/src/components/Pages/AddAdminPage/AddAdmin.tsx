@@ -6,8 +6,13 @@ import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { styled } from '@mui/styles';
 
 const theme = createTheme();
+
+const MyTextField = styled(TextField)({
+  background: 'linear-gradient(45deg, #b3e5fc 10%, white 100%)',
+});
 
 export const AddAdmin = () => {
     const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
@@ -37,7 +42,7 @@ export const AddAdmin = () => {
                     }}
                 >
                     <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
-                        <TextField
+                        <MyTextField
                             margin="normal"
                             required
                             fullWidth
@@ -47,7 +52,7 @@ export const AddAdmin = () => {
                             autoComplete="username"
                             autoFocus
                         />
-                        <TextField
+                        <MyTextField
                             margin="normal"
                             required
                             fullWidth

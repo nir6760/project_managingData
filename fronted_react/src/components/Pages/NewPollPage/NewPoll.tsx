@@ -8,8 +8,13 @@ import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import 'antd/dist/antd.css';
 import { Table } from 'antd';
+import { styled } from '@mui/styles';
 
 const theme = createTheme();
+
+const MyTextField = styled(TextField)({
+    background: 'linear-gradient(45deg, #b3e5fc 10%, white 100%)',
+});
 
 export const NewPoll = () => {
 
@@ -146,7 +151,7 @@ export const NewPoll = () => {
                         <Typography component="h5" variant="h6">
                             Add a question
                         </Typography>
-                        <TextField
+                        <MyTextField
                             margin="normal"
                             required
                             fullWidth
@@ -160,7 +165,7 @@ export const NewPoll = () => {
                             <br></br>
                             Add possible answers
                         </Typography>
-                        <TextField
+                        <MyTextField
                             margin="normal"
                             required
                             fullWidth
@@ -173,7 +178,7 @@ export const NewPoll = () => {
                         {answersList.map((x, i) => {
                             return (
                             <div className="answers-box">
-                                <TextField
+                                <MyTextField
                                     margin="normal"
                                     required
                                     fullWidth
@@ -198,7 +203,7 @@ export const NewPoll = () => {
                         </Typography>
                         <br></br>
                         <>
-                            <Table
+                            <Table 
                                 columns={columns}
                                 rowSelection={{ ...rowSelection, checkStrictly }}
                                 dataSource={data}

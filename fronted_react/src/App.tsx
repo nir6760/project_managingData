@@ -7,7 +7,7 @@ import { Character } from './types';
 function App() {
 
   const [characters, setCharacters] = React.useState<Character[]>([]);
-  const [page, setPage] = React.useState<number>(1);
+  const [page, setPage] = React.useState<number>(3);
 
   const changePage = (newPage: number) => {
     setPage(newPage);
@@ -15,7 +15,7 @@ function App() {
   }
 
    return (
-     <div className="root">
+     <div className="root" style={{backgroundColor: "#e1f5fe"}}>
         {page === 7 ? (
           <img src={require('./components/AppHeader/logo.png')} />
         ) : (

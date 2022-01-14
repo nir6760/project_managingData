@@ -10,8 +10,13 @@ import Select from '@mui/material/Select';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import * as am5 from "@amcharts/amcharts5";
 import * as am5percent from "@amcharts/amcharts5/percent";
+import { styled } from '@mui/styles';
 
 const theme = createTheme();
+
+const MySelect = styled(Select)({
+    background: 'linear-gradient(45deg, #b3e5fc 10%, white 100%)',
+});
 
 export const PollsResults = () => {
 
@@ -129,7 +134,7 @@ export const PollsResults = () => {
                 <Box sx={{ minWidth: 120 }}>
                     <FormControl fullWidth>
                         <InputLabel id="demo-simple-select-label">Question</InputLabel>
-                        <Select
+                        <MySelect
                             labelId="demo-simple-select-label"
                             id="demo-simple-select"
                             value={questionID}
@@ -144,7 +149,7 @@ export const PollsResults = () => {
                                     )
                                 })
                             }
-                        </Select>
+                        </MySelect>
                     </FormControl>
                 </Box>
                 <br></br>
