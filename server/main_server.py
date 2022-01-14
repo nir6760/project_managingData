@@ -191,7 +191,6 @@ def run_app():
             return jsonify(error=send_back), 500
     ## ***********************************************admin post ***********************************************
     @app.route('/login_admin', methods=['POST'])
-    @cross_origin()
     def login_admin():
         try:
             data = request.get_json(force=True)
@@ -221,7 +220,6 @@ def run_app():
             # response.headers.add("Access-Control-Allow-Origin", "*")
             return response
     @app.route('/register_admin', methods=['POST'])
-    @cross_origin()
     def register_admin():
         try:
             data = request.get_json(force=True)
@@ -374,6 +372,7 @@ def run_app():
             poll_content = data['poll_content']
             numbers_choices_dict = transformNumberAnswerListToDict(data['numbers_choices_lst'])
             idPoll_answer_lst = data['idPoll_answer_lst']
+            should_union = data['should_union']
             users_chat_id_lst= []
 
             try:
@@ -385,7 +384,7 @@ def run_app():
                         print('This is full list ', users_chat_id_lst)
                     else:
                         # filter
-                        users_chat_id_lst = getChatIdLstToSend(idPoll_answer_lst)
+                        users_chat_id_lst = getChatIdLstToSend(idPoll_answer_lst, union=should_union)
                         print('This is filter list ', users_chat_id_lst)
                     if len(users_chat_id_lst) == 0:
                         send_back = 'No users at the mailing list for the poll.\n' \
@@ -457,9 +456,12 @@ def run_app():
             token = decode_base64(data['token'])
             id_poll = data['id_poll']
             try:
+                print(id_poll)
                 answers_hist_exists, answers_hist_dict = creatHistogramForSpecificPoll(token, id_poll)
+                print(answers_hist_exists, answers_hist_dict)
 
                 if answers_hist_exists:
+
                     send_back = answers_hist_dict
                     return jsonify(message_back=send_back)
                 else:
@@ -476,7 +478,6 @@ def run_app():
             return jsonify(error=send_back), 500
 
     @app.route('/get_associated_polls', methods=['POST'])
-    @cross_origin()
     def get_associated_polls():
         try:
             data = request.get_json(force=True)

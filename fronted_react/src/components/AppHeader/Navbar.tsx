@@ -26,9 +26,15 @@ export const Navbar: React.FC<NavbarProps> = ({
             case 'Add Admin':
                 changePage(6);
                 break;
+            case 'FAQ':
+                changePage(7);
+                break;
+            case 'About':
+                changePage(8);
+                break;
             case 'Sign Out':
                 setToken("no_token");
-                changePage(7);
+                changePage(3);
                 break;
             default:
                 break;

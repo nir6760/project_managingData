@@ -247,6 +247,7 @@ def getAnswersForPoll(id_poll):
 
 # create histogram from answers to specific poll
 def creatHistogramForSpecificPoll(token, id_poll):
+    result_lst = []
     answers_hist_dict = {}
     numbers_answers_exists, numbers_answers_dict = getChoicesForPoll(id_poll)
     if numbers_answers_exists:
@@ -260,8 +261,10 @@ def creatHistogramForSpecificPoll(token, id_poll):
                     answers_hist_dict[poll_content] += 1
                 else:
                     answers_hist_dict[poll_content] = 1
+    for key, value in answers_hist_dict.items():
+        result_lst.append({'Answer': key, 'Votes': value})
 
-    return answers_hist_dict
+    return True, result_lst
 
 
 # get all answers from specific poll
@@ -294,6 +297,7 @@ def getChatIdsForAnswerInPollByAdminToken(token, id_poll, answer_number):
         print("An error as occurred, No rows were deleted")
         raise e
     return chat_ids_lst
+
 
 # get all answers from specific poll
 def getChatIdsForAnswerInPoll(id_poll, answer_number):

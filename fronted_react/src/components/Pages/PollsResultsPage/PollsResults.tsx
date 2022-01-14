@@ -1,4 +1,4 @@
-import React, { useLayoutEffect } from 'react';
+import React, { Key, ReactNode, useLayoutEffect } from 'react';
 import '../../../App.css';
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
@@ -11,85 +11,147 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 import * as am5 from "@amcharts/amcharts5";
 import * as am5percent from "@amcharts/amcharts5/percent";
 import { styled } from '@mui/styles';
+import { serverPath, wrap64ForSend } from '../../../app-constants';
+import useToken from '../../../useToken';
 
 const theme = createTheme();
+async function getAnswersHistogram(credentials: any) {
+    //Simple POST request with a JSON body using fetch
+    let recived: any = "Server Error";
+    let connection: boolean = true;
+    let was_error: boolean = false;
+    const requestOptions1 = {
+        method: 'POST',
+        body: JSON.stringify(credentials)
+    };
+    try {
+        var response = await fetch(`${serverPath}/get_poll_answers`, requestOptions1);
+        var response_json = await response.json();
+        console.log(response_json);
+        if (!response_json.hasOwnProperty("message_back")) {
+            if (!response_json.hasOwnProperty("error")) {
+                return { connection, recived };
+            }
+            recived = response_json['error'];
+            was_error = true;
+            return { connection, was_error, recived };
+        }
+        recived = response_json['message_back'];
+    } catch (e) {
+        console.log(e);
+        connection = false;
+        console.log('error connection');
+        alert('Connection Error - Please check your internet connection');
+        //console.error(e);
+    }
+
+    return { connection, was_error, recived };
+}
+
 
 const MySelect = styled(Select)({
     background: 'linear-gradient(45deg, #b3e5fc 10%, white 100%)',
 });
 
 export const PollsResults = () => {
+    localStorage.setItem('pageAuth', '5');
+    const [fetchingData, setFetchingData] = React.useState(true);
+    const [firstSelected, setfirstSelected] = React.useState(false);
+    interface Dict {
+        question: ReactNode;
+        q_id: string;
+    }
+    const [questionData, setquestionData] = React.useState<Dict[]>();
+    const { token, setToken } = useToken();
+
 
     const myQuestions = [
-        {q_id: 0, question: 'How are you?'},
-        {q_id: 1, question: 'How old are you?'},
-        {q_id: 2, question: 'Where are you from?'},
+        { q_id: 0, question: 'How are you?' },
+        { q_id: 1, question: 'How old are you?' },
+        { q_id: 2, question: 'Where are you from?' },
     ]
-    
-    const zero_answer = [
-        {
-            Answer: "answer 1",
-            Votes: 100
-        },
-        {
-            Answer: "answer 2",
-            Votes: 200
-        },
-        {
-            Answer: "answer 3",
-            Votes: 300
-        }
-    ]
+    //get data for filter
+    React.useEffect(() => {
+        let isSubscribed = true;
+        const fetchFilter = async (credentials: any) => {
 
-    const one_answer = [
-        {
-            Answer: "answer 4",
-            Votes: 400
-        },
-        {
-            Answer: "answer 5",
-            Votes: 500
-        },
-        {
-            Answer: "answer 6",
-            Votes: 600
-        }
-    ]
+            //Simple POST request with a JSON body using fetch
+            var fetchedData;
+            let connection: boolean = true;
 
-    const two_answer = [
-        {
-            Answer: "answer 7",
-            Votes: 700
-        },
-        {
-            Answer: "answer 8",
-            Votes: 800
-        },
-        {
-            Answer: "answer 9",
-            Votes: 900
-        }
-    ]
+            const requestOptions1 = {
 
-    const [results, setResults] = React.useState(zero_answer);
+                method: 'POST',
+                body: JSON.stringify(credentials)
+            };
+            try {
+                var response = await fetch(`${serverPath}/get_associated_polls`, requestOptions1);
+                var response_json = await response.json();
+
+                if (response_json.hasOwnProperty('result_lst')) {
+                    fetchedData = response_json['result_lst'];
+                    // setFetching is false here
+
+                }
+                else {
+                    console.log(response_json['error']);
+                }
+
+            } catch (e) {
+                connection = false;
+                console.error('connection error ');
+                alert('Connection Error - Please check your internet connection');
+                //console.error(e);
+            }
+            if (connection === false) {
+                return;
+            }
+            const editDataToViewQuestions = (fetchedData: any) => {
+                var fetchedLst = [];
+                for (let i = 0; i < fetchedData.length; i++) {
+                    var currDict = {
+                        q_id: `${fetchedData[i]['id_poll']}`,
+                        question: `${fetchedData[i]['poll_content']}    - Was asked at ${fetchedData[i]['date']}`,
+                    };
+                    fetchedLst.push(currDict)
+                    if (i === 0) {
+                        setQuestionID(fetchedData[i]['id_poll']);
+                    }
+                }
+                console.log(fetchedLst);
+                setFetchingData(false);
+                setquestionData(fetchedLst);
+                return fetchedLst;
+
+            };
+            editDataToViewQuestions(fetchedData);
+        }
+        fetchFilter({
+            token: wrap64ForSend(token)
+        }).catch(console.error);
+        setFetchingData(false)
+    }, [])
+
+    const [results, setResults] = React.useState([{}]);
     const [questionID, setQuestionID] = React.useState(0);
 
     useLayoutEffect(() => {
         // Pie Chart - instantiating 
+        if(firstSelected){
         let root = am5.Root.new("chartdiv");
         let chart = root.container.children.push(
-        am5percent.PieChart.new(root, {})
+            am5percent.PieChart.new(root, {})
         );
 
         // Pie Chart - add series 
         let series = chart.series.push(
             am5percent.PieSeries.new(root, {
-            name: "Series",
-            categoryField: "Answer",
-            valueField: "Votes"
+                name: "Series",
+                categoryField: "Answer",
+                valueField: "Votes"
             })
         );
-        
+
         // Add legend
         let legend = chart.children.push(am5.Legend.new(root, {
             centerX: am5.percent(50),
@@ -100,27 +162,48 @@ export const PollsResults = () => {
         // Pie Chart - setting data
         series.data.setAll(results)
         legend.data.setAll(series.dataItems);
-        
+
         series.appear();
         chart.appear();
-    
+
         return () => {
-          root.dispose();
+            root.dispose();
         };
+    }
     }, [results]);
 
-    const handleChange = (event:any) => {
+    const handleChange = async (event: any) => {
         setQuestionID(event.target.value);
+        console.log('id poll num:');
+        console.log(event.target.value);
+        console.log(questionID);
+        if (questionData && !fetchingData) {
+            var id_poll = event.target.value;
+            //get answers
+            const { connection, was_error, recived } = await getAnswersHistogram({
+                token: wrap64ForSend(token),
+                id_poll: id_poll,
+            });
+            if (connection === false) {
+                return;
+            }
+            if (was_error === true) {
+                return;
+            }
+            setfirstSelected(true);
+            // answers have returned
+            setResults(recived);
 
-        if (event.target.value === 0){
-            setResults(zero_answer);
         }
-        if (event.target.value === 1){
-            setResults(one_answer);
-        }
-        if (event.target.value === 2){
-            setResults(two_answer);
-        }
+        // if (event.target.value === 0){
+        //     setResults(zero_answer);
+        // }
+        // if (event.target.value === 1){
+        //     setResults(one_answer);
+        // }
+        // if (event.target.value === 2){
+        //     setResults(two_answer);
+        // }
     };
 
     return (
@@ -140,14 +223,22 @@ export const PollsResults = () => {
                             value={questionID}
                             label="Question"
                             onChange={handleChange}
-                            >
-                            {myQuestions.map(question => {
+                        >
+
+                            {questionData && !fetchingData ?
+                                questionData.map(question => {
+                                    console.log(question);
                                     return (
                                         <MenuItem key={question.q_id} value={question.q_id}>
                                             {question.question}
                                         </MenuItem>
                                     )
                                 })
+                                :
+                                <Typography component="h1" variant="h6">
+                                    Loading...
+                                </Typography>
+
                             }
                         </MySelect>
                     </FormControl>
@@ -155,6 +246,7 @@ export const PollsResults = () => {
                 <br></br>
                 <br></br>
                 <div id="chartdiv" style={{ width: "100%", height: "500px" }}></div>
+
             </Container>
         </ThemeProvider>
     );

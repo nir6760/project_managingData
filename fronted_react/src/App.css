@@ -20,6 +20,7 @@ input {
 .root {  
   text-align: center;
   min-height: 100vh;
+  background-color: #e1f5fe;
 }
 
 .header-container {

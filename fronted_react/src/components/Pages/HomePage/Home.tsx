@@ -1,3 +1,4 @@
+import React, { Component }  from 'react';
 import '../../../App.css';
 import Typography from '@mui/material/Typography';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
@@ -7,6 +8,7 @@ import {getAdminName} from '../../AppHeader/Header';
 const theme = createTheme();
 
 export const Home = () => {
+    localStorage.setItem('pageAuth', '3');
     return (  
         <ThemeProvider theme={theme}>
             <h1> Home </h1> 

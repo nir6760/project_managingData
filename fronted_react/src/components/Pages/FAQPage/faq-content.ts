@@ -6,27 +6,43 @@ export type FaqContent = {
 export const faqContent: FaqContent[] = [
     {
         question: 'Where to start?',
-        answer: 'In the repo of the project, you can navigate between the different branches',
+        answer: 'Go to New Poll page, add a poll and just send it, easy peasy.',
     },
     {
-        question: 'Where is an example of useState?',
-        answer: 'In almost every component. You can see it starting from branch 5',
+        question: 'What is the meaning of poll?',
+        answer: 'On this site poll is a question with multiple answers.',
     },
     {
-        question: 'Where is an example of useEffect?',
-        answer: 'In # 10, you can see a call to useEffect, which means "Perform the action when the component first goes up." The operation is fetch from an external server (yes, it is inefficient 🤓).',
+        question: 'Are there any restriction on poll?',
+        answer: 'Yes, poll must be a question with at least 2 answers, and each answer should be uniqe.',
     },
     {
-        question: 'Where is a map example for a component?',
-        answer: 'Found in FAQ, Amigos and Navbar. There is a mapping on a list, and each member in the list is returned compenante with props accordingly.',
+        question: 'Where I can view the poll results?',
+        answer: 'Go to Polls Results page, select your poll and watch the results, note that you should send some poll first - q1',
     },
     {
-        question: `Im not having fun with css, what do I do?`,
-        answer: 'Read about flexbox. This is a basic software that makes order. Google short and you will find an answer. In addition, Sass can be used. CSS with superpowers. Here too, Google.',
+        question: 'Can I view other admins polls results, and they can view mine!?',
+        answer: 'No, due to privacy each admin can view and filter by only the polls he or she owns',
     },
     {
-        question: `You're naughty! Every time I refresh the page, my characters disappear. What to do?!`,
-        answer: 'Well, of course. We did not store the information on an external server, nor did we use localStorage. Read about the different solutions, and where else you can take the project forward - user authentication, add more information about each character and save it on the server, see other users characters and more.',
+        question: 'But Who are on the mailing list?',
+        answer: 'Every user that is register for PollsBot channel on Telegram is on your mailing list.',
+    },
+    {
+        question: 'And if I want to filter my mailing list by previous answers on my polls?',
+        answer: 'Great question, you can filter by that when you are creating the poll just before sending it.',
+    },
+    {
+        question: `Are there any restrictions regarding registering other admins to this service?`,
+        answer: 'Well only an admin can register an admin (so you can 🤓), each admin should have a uniqe name.',
+    },
+    {
+        question: `What is Cors Policy and why Chrom might block requests from the server?`,
+        answer: 'Honestly, we didn\'t fully understand and it seems like no one on the web did. You can try install some chrom extension - Allow CORS: Access-Control-Allow-Origin',
+    },
+    {
+        question: `OK, Great Work I am having so much fun`,
+        answer: 'Thanks, You welcome :)',
     }
 ]
     

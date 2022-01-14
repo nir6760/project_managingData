@@ -16,38 +16,39 @@ import ReactDOM from 'react-dom';
 import _ from 'lodash';
 
 import { styled } from '@mui/styles';
+import { Checkbox, FormControl, FormControlLabel, FormGroup, FormLabel, Radio, RadioGroup } from '@mui/material';
 
 async function sendPoll(credentials: any) {
-      //Simple POST request with a JSON body using fetch
-      let recived:string = "Server Error";
-      let connection:boolean = true;
+    //Simple POST request with a JSON body using fetch
+    let recived: string = "Server Error";
+    let connection: boolean = true;
 
-      const requestOptions1 = {
+    const requestOptions1 = {
         method: 'POST',
         body: JSON.stringify(credentials)
-      };
-        try {
-          var response = await fetch(`${serverPath}/register_and_send_poll`,requestOptions1);
-          var response_json = await response.json();
-          console.log(response_json);
-          if(!response_json.hasOwnProperty("message_back")){
-            if(!response_json.hasOwnProperty("error")){
-                return {connection, recived};
-              }
-              recived = response_json['error'];
-              return {connection, recived};
-          }
-          recived = response_json['message_back'];
-      } catch (e) {
+    };
+    try {
+        var response = await fetch(`${serverPath}/register_and_send_poll`, requestOptions1);
+        var response_json = await response.json();
+        console.log(response_json);
+        if (!response_json.hasOwnProperty("message_back")) {
+            if (!response_json.hasOwnProperty("error")) {
+                return { connection, recived };
+            }
+            recived = response_json['error'];
+            return { connection, recived };
+        }
+        recived = response_json['message_back'];
+    } catch (e) {
         console.log(e);
         connection = false;
         console.log('error connection');
         alert('Connection Error - Please check your internet connection');
-          //console.error(e);
-      }
-
-      return {connection, recived};
+        //console.error(e);
     }
+
+    return { connection, recived };
+}
 const theme = createTheme();
 
 const MyTextField = styled(TextField)({
@@ -74,12 +75,13 @@ export const TableElement: React.FC<TableElementProps> = ({
 }
 
 export const NewPoll = () => {
-    const [ fetchingData, setFetchingData ] = React.useState(true);
-    const [ filterData, setfilterData ] = React.useState<Dict[]>();
+    localStorage.setItem('pageAuth', '4');
+    const [fetchingData, setFetchingData] = React.useState(true);
     interface Dict {
     }
-    localStorage.setItem('pageAuth', '4');
+    const [filterData, setfilterData] = React.useState<Dict[]>();
     const { token, setToken } = useToken();
+    const [checkUnion, setcheckUnion] = React.useState(true);
 
     // Question + Answers
     const [answersList, setAnswersList] = useState([{ answer: "" }]);
@@ -108,64 +110,9 @@ export const NewPoll = () => {
             key: "data"
         },
     ];
-    // let data:Dict[] = []
-    // let data = [
-    //     {
-    //         key: '0',
-    //         data: 'How are you?',
-    //         children: [
-    //             {
-    //                 key: '0_0',
-    //                 data: 'Good',
-    //             },
-    //             {
-    //                 key: '0_1',
-    //                 data: 'Bad',
-    //             },
-    //             {
-    //                 key: '0_2',
-    //                 data: 'Not bad',
-    //             },
-    //             {
-    //                 key: '0_3',
-    //                 data: 'Perfect',
-    //             },
-    //         ],
-    //     },
-    //     {
-    //         key: 1,
-    //         data: 'How old are you?',
-    //         children: [
-    //             {
-    //                 key: '1_0',
-    //                 data: '0-10',
-    //             },
-    //             {
-    //                 key: '1_1',
-    //                 data: '10-15',
-    //             },
-    //             {
-    //                 key: '1_2',
-    //                 data: '15-20',
-    //             },
-    //             {
-    //                 key: '1_3',
-    //                 data: '20-25',
-    //             },
-    //             {
-    //                 key: '1_4',
-    //                 data: '25-30',
-    //             },
-    //             {
-    //                 key: '1_5',
-    //                 data: '30-40',
-    //             },
-    //         ],
-    //     },
-    // ];
 
     //get data for filter
-    React.useEffect( () => {
+    React.useEffect(() => {
         let isSubscribed = true;
         const fetchFilter = async (credentials: any) => {
 
@@ -273,49 +220,58 @@ export const NewPoll = () => {
         let question: FormDataEntryValue | null = data.get('question');
         let answer1: any = data.get('answer1');
         let answers: any = [data.get('answer1'), ...answersList];
-        let filter:any = filterList;
+        let filter: any = filterList;
         console.log({
             Question: question,
             Answers: answers,
             Filter: filter
         });
-        if (question === "" || answers.length < 2 ) {
+        if (question === "" || answers.length < 2) {
             alert('All poll detailes must not be empty');
             return;
-          }
-          let choicesHist:any = {}
-          for(let j = 0 ; j < answers.length ; j++){
-              const currCheck = answers[j];
+        }
+        let choicesHist: any = {}
+        for (let j = 0; j < answers.length; j++) {
+            const currCheck = answers[j];
             if (!_.isString(currCheck) || currCheck === "") {
+                alert('All poll answers can\'t be empty and must be uniqe, with least 2 possible choices');
+                return;
+            }
+            if (choicesHist.hasOwnProperty(`${currCheck}`)) {
                 alert('All poll answers can\'t be empty, with least 2 uniqe choices');
                 return;
-              }
-            if(choicesHist.hasOwnProperty(`${currCheck}`)){
-                alert('All poll answers can\'t be empty, with least 2 uniqe choices');
-                return;
-            }else{
+            } else {
                 choicesHist[currCheck] = (choicesHist[currCheck] || 0) + 1;
 
             }
 
-          }
+        }
 
         //login user
-    const {connection, recived} = await sendPoll({
-        token: wrap64ForSend(token),
-        poll_content: data.get('question'),
-        numbers_choices_lst: [data.get('answer1'), ...answersList],
-        idPoll_answer_lst: filterList
-      });
-      if(connection === false){
-        return;
-      }
-      else {
-        alert(recived);
-      }
+        const { connection, recived } = await sendPoll({
+            token: wrap64ForSend(token),
+            poll_content: data.get('question'),
+            numbers_choices_lst: [data.get('answer1'), ...answersList],
+            idPoll_answer_lst: filterList,
+            should_union: checkUnion
+        });
+        if (connection === false) {
+            return;
+        }
+        else {
+            alert(recived);
+        }
 
     };
+    const handleOnChangeRadio = (e: any) => {
+        if (e.target.value === 'union') {
+            setcheckUnion(true);
+        }
+        else {
+            setcheckUnion(false);
+        }
 
+    };
     return (
         <ThemeProvider theme={theme}>
             <h1> New Poll </h1>
@@ -386,20 +342,37 @@ export const NewPoll = () => {
                         <br></br>
                         <div id='filter_table_div'>
                             <>
-                            {filterData && !fetchingData ?
-                                <Table
-                        columns={columns}
-                        rowSelection={{ ...rowSelection, checkStrictly }}
-                        dataSource={filterData} />
-                    :
-                    <Table
-                        columns={columns}
-                        rowSelection={{ ...rowSelection, checkStrictly }}
-                        dataSource={filterData} />
-                    }
-                            {/* <TableElement columns={columns} rowSelection={rowSelection} checkStrictly={checkStrictly} data={data} /> */}
+                                {filterData && !fetchingData ?
+                                    <Table
+                                        columns={columns}
+                                        rowSelection={{ ...rowSelection, checkStrictly }}
+                                        dataSource={filterData} />
+                                    :
+                                    <Typography component="h1" variant="h6">
+                                        Loading...
+                                    </Typography>
+                                }
+                                {/* <TableElement columns={columns} rowSelection={rowSelection} checkStrictly={checkStrictly} data={data} /> */}
                             </>
                         </div>
+                        {/* <FormGroup>
+                            <FormControlLabel control={<Checkbox defaultChecked onChange={handleOnChangeRadio} />}
+                                label="Check for union (OR Condition)" />
+                        </FormGroup> */}
+                        <FormControl component="fieldset">
+                            <FormLabel component="legend">Union (OR Condition)
+                                \
+                                Intersection query (AND Condition)</FormLabel>
+                            <RadioGroup
+                                aria-label="Union / Intersection query"
+                                name="controlled-radio-buttons-group"
+                                defaultValue={"union"}
+
+                            >
+                                <FormControlLabel value="union" control={<Radio />} label="Union" onChange={handleOnChangeRadio} />
+                                <FormControlLabel value="intersect" control={<Radio />} label="Intersection" onChange={handleOnChangeRadio} />
+                            </RadioGroup>
+                        </FormControl>
                         <Button
                             type="submit"
                             fullWidth

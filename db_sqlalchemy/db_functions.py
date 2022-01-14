@@ -35,7 +35,7 @@ def unionLists(lst1, lst2):
 
 
 # get chat ids as requested
-def getChatIdLstToSend(idPoll_answer_lst):
+def getChatIdLstToSend(idPoll_answer_lst, union=True):
     # result_chat_id_lst = getAllUsersChatIdsLst()
     result_chat_id_lst = []
     for idPoll_answer in idPoll_answer_lst:
@@ -45,7 +45,10 @@ def getChatIdLstToSend(idPoll_answer_lst):
         if curr_id_poll is None and curr_answer_num is None:
             raise ParsingException  # error while parsing
         curr_chat_id_lst = getChatIdsForAnswerInPoll(curr_id_poll, curr_answer_num)
-        result_chat_id_lst = unionLists(result_chat_id_lst, curr_chat_id_lst)
+        if union:
+            result_chat_id_lst = unionLists(result_chat_id_lst, curr_chat_id_lst)
+        else:
+            result_chat_id_lst = intersectLists(result_chat_id_lst, curr_chat_id_lst)
     return result_chat_id_lst
 
 
@@ -228,10 +231,11 @@ if __name__ == '__main__':
     print('************** utils **************')
     print(getChatIdsForAnswerInPoll(1, 2))
     print(getChatIdsForAnswerInPoll(2, 3))
-    # print()
-    # print(getAnswersForPollByAdmin("nir6760", 1))
-    # print()
-    # print(creatHistogramForSpecificPoll("nir6760", 2))
+    print()
+    print(getAnswersForPollByAdmin("nir6760", 1))
+    print()
+    print("*********************************************************")
+    print(creatHistogramForSpecificPoll("nir6760", 2))
     # print()
     # print(getAdminsList())
     print("*********************************************************")

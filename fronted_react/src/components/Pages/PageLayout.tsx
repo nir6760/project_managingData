@@ -33,6 +33,10 @@ export const PageLayout: React.FC<PageLayoutProps> = ({
             return <PollsResults />
         case 6:
             return <AddAdmin/>
+        case 7:
+            return <FAQ/>
+        case 8:
+            return <About/>
         default:
             return <Home />;            
     }
