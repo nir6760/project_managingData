@@ -1,5 +1,5 @@
 # coding=utf-8
-from db_sqlalchemy.db_utils_func import getFullPollData
+from db_sqlalchemy.db_utils_func import getFullPollData, transformNumberAnswerDictToLst, transformNumberAnswerListToDict
 from exception_types import DBException, UseException
 from db_sqlalchemy.manytomany.db_server import myApp
 from sqlalchemy import exc

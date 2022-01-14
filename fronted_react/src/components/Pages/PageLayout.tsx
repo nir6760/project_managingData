@@ -2,7 +2,6 @@ import React from 'react';
 import '../../App.css';
 import { Character } from '../../types';
 import { About } from './AboutPage/About';
-import { AmigosPage } from './AmigosPage/Amigos';
 import { FAQ } from './FAQPage/FAQ';
 import { Home } from './HomePage/Home';
 import { NewPoll } from './NewPollPage/NewPoll';
@@ -21,13 +20,11 @@ export const PageLayout: React.FC<PageLayoutProps> = ({
     setCharacters,
 }) => {
 
-    switch(page) {
-        case 0:
-            return <AmigosPage characters={characters} setCharacters={setCharacters} />            
-        case 1:
-            return <About />
-        case 2:
-            return <FAQ />
+    switch(page) {   
+        // case 1:
+        //     return <About />
+        // case 2:
+        //     return <FAQ />
         case 3:
             return <Home />
         case 4:

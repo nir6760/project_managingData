@@ -1,7 +1,6 @@
 import React from 'react';
 import '../../../App.css';
 import { Character } from '../../../types';
-import { CharacterCard } from '../AmigosPage/CharacterCard';
 
 
 export const About = () => {
@@ -39,7 +38,7 @@ export const About = () => {
 
     return (
         <div className='about-page-container'> 
-        {aboutRandomCharacter && !fetchingData ? <CharacterCard character={aboutRandomCharacter}/> : 'Loading...'}
+        {/* {aboutRandomCharacter && !fetchingData ? <CharacterCard character={aboutRandomCharacter}/> : 'Loading...'} */}
         <h2> Hi, this is the about page! </h2>        
         <h4> You can check the FAQ for some technical details about this project</h4>
         <a href='https://github.com/NissanOhana/react-technion-lec'> GitHub repo </a>

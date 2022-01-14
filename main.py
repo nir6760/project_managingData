@@ -36,6 +36,7 @@ if __name__ == '__main__':
     logging.basicConfig(format=format, level=logging.INFO,
                         datefmt="%H:%M:%S")
 
+
     # main server
     main_server_process = Process(target=procss_main_server, args=(1,))
     #main_server_process = threading.Thread(target=procss_main_server, args=(1,))

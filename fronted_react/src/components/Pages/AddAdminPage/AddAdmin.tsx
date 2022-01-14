@@ -6,12 +6,12 @@ import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import { serverPath, base64, utf8} from '../../../app-constants';
+import { serverPath, wrap64ForSend} from '../../../app-constants';
 import useToken from '../../../useToken';
 
 
 
-async function sigUpUser(credentials: any) {
+async function signUpUser(credentials: any) {
     //Simple POST request with a JSON body using fetch
     let new_token:string = "no_token";
     let my_admin_name:string = "no_name";
@@ -37,7 +37,7 @@ async function sigUpUser(credentials: any) {
         
     } catch (e) {
       new_token="error";
-      console.log('error connection');
+      console.error('connection error ');
       alert('Connection Error - Please check your internet connection');
         //console.error(e);
     }
@@ -49,9 +49,9 @@ const theme = createTheme();
 
 
   
-  export const AddAdmin  = () => {   
+  export const AddAdmin  = () => { 
+    localStorage.setItem('pageAuth', '6');  
     const { token, setToken } = useToken();
-    localStorage.setItem('pageUnAuth', '1');
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         const data = new FormData(event.currentTarget);
@@ -62,10 +62,10 @@ const theme = createTheme();
           return;
         }
         //reister user
-        const {new_token, my_admin_name} = await sigUpUser({
+        const {new_token, my_admin_name} = await signUpUser({
           admin_name: admin_name,
-          password: base64.encode(utf8.encode(password)),
-          token: base64.encode(utf8.encode(token))
+          password: wrap64ForSend(password!==null? password.toString(): "no_pass"),
+          token: wrap64ForSend(token)
         });
         
         if(new_token==="error"){

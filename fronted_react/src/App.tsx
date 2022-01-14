@@ -11,7 +11,6 @@ function App() {
   var pageUnAuthInt = 0;
     if(pageUnAuthLocal_string !== null){
       pageUnAuthInt = Number(pageUnAuthLocal_string);
-      console.log(`pageUnAuth is ${pageUnAuthInt}`);
     }
     const pageAuthLocal_string = localStorage.getItem('pageAuth');
     var pageAuthInt = 3;
@@ -38,7 +37,6 @@ function App() {
   // }
   
   if(!token || token === "no_token") {
-    console.log('redirect to signIn page');
     return (
       
       <div className="root">
@@ -47,7 +45,6 @@ function App() {
       </div>
     );
   }
-  console.log('redirect to main page');
    return (
       
      <div className="root">

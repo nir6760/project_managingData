@@ -33,6 +33,9 @@ def is_a_poll(id_poll):
 
 # insert a new poll to Poll db
 def insert_only_poll(poll_content):
+    "fd".endswith("?")
+    if not poll_content.endswith("?"):
+        poll_content += "?"
     my_app_instance = myApp()
     Poll = my_app_instance.Poll_class
     session = my_app_instance.connDBParams_obj.session_factory()
@@ -42,6 +45,7 @@ def insert_only_poll(poll_content):
         session.add(new_poll)
         session.commit()
         id_poll = new_poll.id_poll  # id_poll is the autoincremented primary_key column. Should work after commit
+        poll_content = new_poll.poll_content
         print("Poll was inserted")
     except exc.IntegrityError as e:
         print(e)
@@ -51,7 +55,7 @@ def insert_only_poll(poll_content):
         raise e
     finally:
         session.close()
-        return id_poll
+        return id_poll, poll_content
 
 
 ## ************************************choices functions **********************************************
@@ -84,7 +88,7 @@ def insert_poll(poll_content, numbers_choices_dict):
     if flag:
         raise UseException
     try:
-        id_poll = insert_only_poll(poll_content)
+        id_poll, poll_content = insert_only_poll(poll_content)
         if id_poll is not None:
             for key_num, value_answer in numbers_choices_dict.items():
                 print(key_num, '->', value_answer)
@@ -96,7 +100,7 @@ def insert_poll(poll_content, numbers_choices_dict):
     except Exception as e:
         print(e)
         raise e
-    return id_poll
+    return id_poll, poll_content
 
 
 # delete poll from Polls db

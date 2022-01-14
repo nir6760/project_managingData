@@ -1,3 +1,4 @@
+import datetime
 import json
 
 import telegram
@@ -5,6 +6,7 @@ from flask import request, jsonify
 
 from configuration.config import server_port, local_host, super_admin_name, super_admin_password, super_admin_token
 from db_sqlalchemy.db_functions import *
+
 
 from exception_types import DBException
 from db_sqlalchemy.manytomany.db_server import myApp
@@ -135,8 +137,12 @@ def run_app():
             poll_id_telegram = data['poll_id_telegram']
             chat_id = data['chat_id']
             answer_number = data['answer_number']
+            print('poll_id_telegram : ', poll_id_telegram)
+            print('chat_id : ', chat_id)
+            print('answer_number : ', str(answer_number))
             try:
                 id_poll_exists, id_poll = getIdPollByPollIdTelegram(poll_id_telegram)
+                print(id_poll_exists, id_poll)
                 if id_poll_exists:
                     insert_user_answer(chat_id, id_poll, answer_number)
                     send_back = 'Answer has been received'
@@ -338,15 +344,19 @@ def run_app():
         poll_id_telegram_lst = []
         # await dp.bot.send_message(1332261387, 'gfgfdgdf')
         for chat_id in users_chat_id_lst:  # send poll to all requested users
-            poll_sent = await dp.bot.send_poll(
-                chat_id,
-                poll_content,
-                answers_lst,
-                is_anonymous=False,
-                allows_multiple_answers=False
-            )
-            poll_id_telegram = poll_sent["id"]
-            poll_id_telegram_lst.append(poll_id_telegram)
+            try:
+                poll_sent = await dp.bot.send_poll(
+                    chat_id,
+                    poll_content,
+                    answers_lst,
+                    is_anonymous=False,
+                    allows_multiple_answers=False
+                )
+                poll_id_telegram = poll_sent["poll"]["id"]
+                poll_id_telegram_lst.append(poll_id_telegram)
+            except Exception as e:
+                print(f'user {chat_id} error:')
+                print(e)
         return poll_id_telegram_lst
 
     async def send_a_poll_and_register_to_poll_telegram(id_poll, users_chat_id_lst, poll_content, numbers_choices_dict):
@@ -362,27 +372,31 @@ def run_app():
             data = request.get_json(force=True)
             token = decode_base64(data['token'])
             poll_content = data['poll_content']
-            numbers_choices_dict = data['numbers_choices_dict']
+            numbers_choices_dict = transformNumberAnswerListToDict(data['numbers_choices_lst'])
             idPoll_answer_lst = data['idPoll_answer_lst']
+            users_chat_id_lst= []
 
             try:
                 if is_a_admin_token(token):
-                    if len(idPoll_answer_lst) == 0:
+                    is_idPoll_answer_lst_empty = len(idPoll_answer_lst) == 0 # or 'data' not in idPoll_answer_lst[0]
+                    if is_idPoll_answer_lst_empty or ('data' in idPoll_answer_lst[0] and idPoll_answer_lst[0]['data'] == ""):
                         # no filtering
                         users_chat_id_lst = getAllUsersChatIdsLst()
+                        print('This is full list ', users_chat_id_lst)
                     else:
                         # filter
                         users_chat_id_lst = getChatIdLstToSend(idPoll_answer_lst)
+                        print('This is filter list ', users_chat_id_lst)
                     if len(users_chat_id_lst) == 0:
                         send_back = 'No users at the mailing list for the poll.\n' \
                                     'Try other filtering or no filter at all'
-                        return jsonify(error=send_back), 400
+                        return jsonify(error=send_back)
                     # register poll
-                    id_poll = insert_poll(poll_content, numbers_choices_dict)
+                    id_poll, poll_content = insert_poll(poll_content, numbers_choices_dict)
                     insert_admin_poll(token, id_poll)  # token admin exists because registration poll is from the UI
                     send_back = 'poll have been registered'
                     # send a poll
-                    res_sending = await send_a_poll_and_register_to_poll_telegram(id_poll, users_chat_id_lst, poll_content, numbers_choices_dict)
+                    res_sending = await send_a_poll_and_register_to_poll_telegram(id_poll, users_chat_id_lst,poll_content, numbers_choices_dict)
                     if res_sending:
                         send_back = 'Poll has been sent'
                         return jsonify(message_back=send_back)
@@ -394,7 +408,7 @@ def run_app():
                     return jsonify(error=send_back)
             except ParsingException as e:
                 print(e)
-                send_back = "Error while parsing your input to the server"
+                send_back = "Error while parsing your input at the server"
                 return jsonify(error=send_back), 400
             except UseException as e:
                 print(e)
@@ -462,23 +476,29 @@ def run_app():
             return jsonify(error=send_back), 500
 
     @app.route('/get_associated_polls', methods=['POST'])
+    @cross_origin()
     def get_associated_polls():
         try:
             data = request.get_json(force=True)
             token = decode_base64(data['token'])
             try:
                 if is_a_admin_token(token):
-                    associated_polls_exist, associated_polls = getAssociatesPollsToAdmin("nir6760")
+                    associated_polls_exist, associated_polls = getAssociatesPollsToAdmin(token)
+                    print(associated_polls_exist, associated_polls)
                     if associated_polls_exist:
                         if len(associated_polls) == 0:
-                            send_back = associated_polls
-                            return jsonify(result_lst=send_back)
-                        else:
                             send_back = "You don't have polls yet"
                             return jsonify(error=send_back)
+                        else:
+                            send_back = associated_polls
+                            return jsonify(result_lst=send_back)
+
                     else:
-                        send_back = "You Are not An Admin"
-                        return jsonify(error=send_back), 404
+                        # send_back =  "No polls to filter from"
+                        # return jsonify(result_lst=send_back)
+                        #send_back = [{'poll_content': 'poll1?', 'date': '2022-01-13', 'numbers_answers_lst': ['choice0', 'choice1', 'choice2'], 'id_poll': 1}, {'poll_content': 'poll3?', 'date': '2022-01-13', 'numbers_answers_lst': ['choice0', 'choice1', 'choice2'], 'id_poll': 3}]
+                        send_back = []
+                        return jsonify(result_lst=send_back)
                 else:
                     send_back = "You Are not An Admin"
                     return jsonify(error=send_back), 404

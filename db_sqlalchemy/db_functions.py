@@ -12,7 +12,12 @@ from exception_types import ParsingException
 def parseIdPollAnswer(idPoll_answer):
     try:
         one_idPoll_answer_lst = idPoll_answer.split('_')
-        return one_idPoll_answer_lst[0], int(one_idPoll_answer_lst[1])
+        if len(one_idPoll_answer_lst) == 1: # can choose id_poll alone
+            return one_idPoll_answer_lst[0], None
+        elif len(one_idPoll_answer_lst) == 2:
+            return one_idPoll_answer_lst[0], int(one_idPoll_answer_lst[1])
+        else:
+            raise ParsingException
     except Exception as e:
         raise ParsingException
 
@@ -35,7 +40,9 @@ def getChatIdLstToSend(idPoll_answer_lst):
     result_chat_id_lst = []
     for idPoll_answer in idPoll_answer_lst:
         curr_id_poll, curr_answer_num = parseIdPollAnswer(idPoll_answer)
-        if curr_id_poll is None or curr_answer_num is None:
+        if curr_id_poll is not None and curr_answer_num is None:
+            continue  # can choose id_poll alone
+        if curr_id_poll is None and curr_answer_num is None:
             raise ParsingException  # error while parsing
         curr_chat_id_lst = getChatIdsForAnswerInPoll(curr_id_poll, curr_answer_num)
         result_chat_id_lst = unionLists(result_chat_id_lst, curr_chat_id_lst)
@@ -139,13 +146,13 @@ def test_polls():
     print('************** polls **************')
     numbers_choices_dict0 = {0: "choice0", 1: "choice1", 2: "choice2"}
     numbers_choices_dict1 = {3: "choice3", 4: "choice4"}
-    insert_poll("poll1?", numbers_choices_dict0)
+    insert_poll("poll1", numbers_choices_dict0)
     print(is_a_poll("3"))
     print(is_a_poll("4"))
     delete_poll("3")
     delete_poll("4")
     insert_poll("poll2?", numbers_choices_dict1)
-    insert_poll("poll3?", numbers_choices_dict0)
+    insert_poll("poll3", numbers_choices_dict0)
     print(getFullPollData(1))
     print()
 

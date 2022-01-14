@@ -3,12 +3,14 @@ from exception_types import DBException, UseException
 from db_sqlalchemy.manytomany.db_server import myApp
 from sqlalchemy import exc
 
+
 # create dictionary from list query of choices
 def create_numbers_answers_dict(list_query):
     res_dict = {}
     for row in list_query:
         res_dict[row.number] = row.answer
     return res_dict
+
 
 # get all choices from specific poll
 def getChoicesForPoll(id_poll):
@@ -62,6 +64,25 @@ def getPollContentAndDate(id_poll):
     return result
 
 
+# transform numbers_answers_dict to order numbers_answers_lst
+def transformNumberAnswerListToDict(numbers_answers_lst):
+    transformed_dct = {}
+    i = 0
+    for element in numbers_answers_lst:
+        transformed_dct[i] = element
+        i = i + 1
+    return transformed_dct
+
+
+# transform numbers_answers_dict to order numbers_answers_lst
+def transformNumberAnswerDictToLst(numbers_answers_dict):
+    transformed_lst = []
+    sorted_tuples_lst = sorted(numbers_answers_dict.items())
+    for element in sorted_tuples_lst:
+        transformed_lst.append(element[1])
+    return transformed_lst
+
+
 # get poll_content and date and choices to specific poll
 def getFullPollData(id_poll):
     result = (False, None)
@@ -72,13 +93,12 @@ def getFullPollData(id_poll):
         if poll_date_res[0]:
             poll_content = poll_date_res[1][0]
             date = poll_date_res[1][1]
-            numbers_answers = getChoicesForPoll(id_poll)
-            if numbers_answers[0]:
-                numbers_answers_dict = numbers_answers[1]
+            numbers_answers_exists, numbers_answers_dict = getChoicesForPoll(id_poll)
+            if numbers_answers_exists:
                 res_dict = {
                     'poll_content': poll_content,
-                    'date': date,
-                    'numbers_answers_dict': numbers_answers_dict
+                    'date': str(date),
+                    'numbers_answers_lst': transformNumberAnswerDictToLst(numbers_answers_dict)
                 }
                 result = (True, res_dict)
     except DBException:

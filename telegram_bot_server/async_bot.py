@@ -231,10 +231,13 @@ You can always get help by /help'''
                                          })
 
             message_back = json.loads(request_res.content.decode('utf8'))
-            if message_back['message_back'] == "general_error_reply":
-                await message_user.reply(my_bot.error_reply)
-            else:
-                await message_user.reply(message_back['message_back'])
+            print(message_back['message_back'])
+            try:
+                print(message_user)
+                await my_bot.bot.send_message(chat_id,"Thanks, Your answer has been received")
+            except Exception as e:
+                print(e)
+                print('error at replay')
 
         except InvalidUserNameException as e:
             await sendFormatErrorToUser(message_user)
@@ -246,7 +249,6 @@ You can always get help by /help'''
 
         except Exception as e:
             print(e)
-            await message_user.reply(my_bot.error_reply)
         # selected_options = answer.option_ids
         # answer_string = ""
         # for question_id in selected_options:
