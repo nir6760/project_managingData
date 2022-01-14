@@ -8,7 +8,7 @@ import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { serverPath, wrap64ForSend} from '../../../app-constants';
 import useToken from '../../../useToken';
-
+import { styled } from '@mui/styles';
 
 
 async function signUpUser(credentials: any) {
@@ -48,7 +48,9 @@ async function signUpUser(credentials: any) {
 const theme = createTheme();
 
 
-  
+  const MyTextField = styled(TextField)({
+  background: 'linear-gradient(45deg, #b3e5fc 10%, white 100%)',
+});
   export const AddAdmin  = () => { 
     localStorage.setItem('pageAuth', '6');  
     const { token, setToken } = useToken();

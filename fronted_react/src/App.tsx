@@ -47,7 +47,7 @@ function App() {
   }
    return (
       
-     <div className="root">
+     <div className="root" style={{backgroundColor: "#e1f5fe"}}>
         <Header setToken={setToken} changePage={changePage}/>
         <PageLayout  page={page} characters={characters} setCharacters={setCharacters} />
      </div>

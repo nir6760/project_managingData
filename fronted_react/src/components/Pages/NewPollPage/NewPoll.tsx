@@ -15,12 +15,13 @@ import ListBody from 'antd/lib/transfer/ListBody';
 import ReactDOM from 'react-dom';
 import _ from 'lodash';
 
+import { styled } from '@mui/styles';
 
 async function sendPoll(credentials: any) {
       //Simple POST request with a JSON body using fetch
       let recived:string = "Server Error";
       let connection:boolean = true;
-    
+
       const requestOptions1 = {
         method: 'POST',
         body: JSON.stringify(credentials)
@@ -44,10 +45,14 @@ async function sendPoll(credentials: any) {
         alert('Connection Error - Please check your internet connection');
           //console.error(e);
       }
-    
+
       return {connection, recived};
     }
 const theme = createTheme();
+
+const MyTextField = styled(TextField)({
+    background: 'linear-gradient(45deg, #b3e5fc 10%, white 100%)',
+});
 
 export interface TableElementProps {
     columns: any;
@@ -163,7 +168,7 @@ export const NewPoll = () => {
     React.useEffect( () => {
         let isSubscribed = true;
         const fetchFilter = async (credentials: any) => {
-            
+
             //Simple POST request with a JSON body using fetch
             var fetchedData;
             let connection: boolean = true;
@@ -176,15 +181,15 @@ export const NewPoll = () => {
             try {
                 var response = await fetch(`${serverPath}/get_associated_polls`, requestOptions1);
                 var response_json = await response.json();
-                
+
                 if (response_json.hasOwnProperty('result_lst')) {
                     fetchedData = response_json['result_lst'];
                     // setFetching is false here
-                    
+
                 }
                 else {
                     console.log(response_json['error']);
-        
+
                 }
 
             } catch (e) {
@@ -198,7 +203,7 @@ export const NewPoll = () => {
             }
             const editDataToViewFilter = (fetchedData: any) => {
                 var fetchedLst = [];
-                
+
                 for (let i = 0; i < fetchedData.length; i++) {
                     var currChildrenLst = [];
                     for (let j = 0; j < fetchedData[i]['numbers_answers_lst'].length; j++) {
@@ -226,7 +231,7 @@ export const NewPoll = () => {
             console.log('old vs new');
             // if (isSubscribed) {
             //     //data = editDataToViewFilter(fetchedData);
-                
+
             //     //console.log(data);
             //     //ReactDOM.render(<TableElement columns={columns} rowSelection={rowSelection} checkStrictly={checkStrictly} data={data} />, document.getElementById('filter_table_div'));
 
@@ -260,7 +265,7 @@ export const NewPoll = () => {
     };
 
     const checkStrictly = false;
-    
+
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         const data = new FormData(event.currentTarget);
@@ -294,7 +299,7 @@ export const NewPoll = () => {
             }
 
           }
-          
+
         //login user
     const {connection, recived} = await sendPoll({
         token: wrap64ForSend(token),
@@ -308,7 +313,7 @@ export const NewPoll = () => {
       else {
         alert(recived);
       }
-        
+
     };
 
     return (
