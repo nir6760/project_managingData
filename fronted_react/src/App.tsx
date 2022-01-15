@@ -49,7 +49,7 @@ function App() {
       
      <div className="root">
         <Header setToken={setToken} changePage={changePage}/>
-        <PageLayout  page={page} characters={characters} setCharacters={setCharacters} />
+        <PageLayout  page={page} changePage={changePage}/>
      </div>
    );
 }

@@ -37,11 +37,13 @@ input {
 
 
 .nav-tab {
-  display: flex;
+  display:inline;
   flex-direction: row;
   gap: 7px;
   padding-bottom: 20px;
   padding-top: 10px;
+  padding-left: 10px;
+  padding-right: 10px;
 }
 
 .nav-button {  
@@ -161,4 +163,43 @@ summary {
 
 details[open] {
     padding: .5em;
+}
+
+
+.adminListcontainer {
+  padding-top: 30px;
+  padding-bottom: 30px;
+  width: 300px;
+  margin: auto;
+}
+
+.input {
+  padding: 5px 15px;
+  width: 300px;
+}
+
+.user-list {
+  margin-top: 30px;
+}
+
+.user {
+  list-style: none;
+  margin: 10px 0;
+  padding: 10px;
+  background: #eee;
+  display: flex;
+  justify-content: space-between;
+}
+
+.user-id {
+  color: red;
+  margin-right: 20px;
+}
+
+.user-name {
+  color: blue;
+}
+
+.user-age {
+  margin-left: auto;
 }

@@ -65,11 +65,11 @@ export const PollsResults = () => {
     const { token, setToken } = useToken();
 
 
-    const myQuestions = [
-        { q_id: 0, question: 'How are you?' },
-        { q_id: 1, question: 'How old are you?' },
-        { q_id: 2, question: 'Where are you from?' },
-    ]
+    // const myQuestions = [
+    //     { q_id: 0, question: 'How are you?' },
+    //     { q_id: 1, question: 'How old are you?' },
+    //     { q_id: 2, question: 'Where are you from?' },
+    // ]
     //get data for filter
     React.useEffect(() => {
         let isSubscribed = true;

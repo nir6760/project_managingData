@@ -230,7 +230,7 @@ def run_app():
                 if is_a_admin_token(token):
                     is_admin = is_a_admin(new_admin_name)
                     if is_admin:
-                        send_back = "Sorry, user name already taken"
+                        send_back = "Sorry, admin name already taken, try a different one"
                         response = jsonify(error=send_back)
                         return response
                     new_token = insert_admin(new_admin_name, password)
@@ -244,7 +244,7 @@ def run_app():
                     return response
             except DBException as e:
                 print(e)
-                send_back = "Sorry, user name already taken"
+                send_back = "Sorry, admin name already taken, try a different one"
                 response = jsonify(error=send_back)
                 return response
         except Exception as e:
@@ -289,7 +289,7 @@ def run_app():
                     admins_list_exists, admins_list = getAdminsList()
                     if admins_list_exists:
                         send_back = admins_list
-                        return jsonify(message_back=send_back)
+                        return jsonify(result_lst=send_back)
                     else:
                         send_back = 'This admin isn\'t registered!'
                         return jsonify(error=send_back)

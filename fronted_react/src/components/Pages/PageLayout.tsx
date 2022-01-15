@@ -8,16 +8,15 @@ import { NewPoll } from './NewPollPage/NewPoll';
 import { PollsResults } from './PollsResultsPage/PollsResults';
 import { AddAdmin } from './AddAdminPage/AddAdmin';
 import { SignIn } from './UnAuth/SignIn';
+import { AdminList } from './AdminList/AdminList';
 
 export interface PageLayoutProps {
     page: number;
-    characters: Character[];
-    setCharacters: React.Dispatch<React.SetStateAction<Character[]>>;
+    changePage(newPage: number): void;
 }
 export const PageLayout: React.FC<PageLayoutProps> = ({
     page,
-    characters,
-    setCharacters,
+    changePage,
 }) => {
 
     switch(page) {   
@@ -26,7 +25,7 @@ export const PageLayout: React.FC<PageLayoutProps> = ({
         // case 2:
         //     return <FAQ />
         case 3:
-            return <Home />
+            return <Home changePage={changePage}/>
         case 4:
             return <NewPoll />
         case 5:
@@ -37,8 +36,10 @@ export const PageLayout: React.FC<PageLayoutProps> = ({
             return <FAQ/>
         case 8:
             return <About/>
+        case 9:
+            return <AdminList changePage={changePage}/>
         default:
-            return <Home />;            
+            return <Home changePage={changePage}/>;            
     }
 }
 

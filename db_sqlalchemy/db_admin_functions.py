@@ -380,10 +380,10 @@ def isPollofAdmin(token, id_poll):
 
 
 # create list from list query (names) of associates admins
-def create_admins_names_lst(list_query):
+def create_admins_names_lst_of_dict(list_query):
     res_lst = []
     for row in list_query:
-        res_lst.append(row.admin_name)
+        res_lst.append({'name' : row.admin_name})
     return res_lst
 
 
@@ -396,7 +396,7 @@ def getAdminsList():
     try:
         list_query = session.query(Admin).all()
         if len(list_query) != 0:  # An empty result evaluates to False.
-            associates_polls_lst = create_admins_names_lst(list_query)
+            associates_polls_lst = create_admins_names_lst_of_dict(list_query)
             result = (True, associates_polls_lst)
         else:
             result = (False, None)
