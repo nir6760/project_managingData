@@ -9,9 +9,9 @@ Configuration for the project are at:
 <br/>
  Backend - configuration\config.py - are the configuration for connecting postgres, bot api and flask-server.
  <br/>
- Fronted - fronted_react/src/app-constants - the server path address for react to send request from.
+ Fronted - fronted_react\src\app-constants - the server path address for react to send request from.
  <br/>
- Notice that server path on the fronted should matched the server path of the flask-server at the backend! (host and port).
+ **!!Notice that server path on the fronted should matched the server path of the flask-server at the backend!!** (host and port).
  <br/>
  Also, You might encounter Cors-Policy blocking on the fronted side, if so, download, install and activate
  Allow CORS: Access-Control-Allow-Origin extension for Google Chrome. <br/>
