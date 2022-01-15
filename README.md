@@ -17,5 +17,7 @@ How to start?
 (initialize and connect to postgres DB, run the flask server and the telegram server).
 3. run npm install and  npm start inside the fronted_react to run the react server and open your browser.
 
+You can try run_project.py script, but do the dependencies first!
+
 
  Enjoy! 

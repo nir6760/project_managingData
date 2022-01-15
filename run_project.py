@@ -20,7 +20,7 @@ def runFrontedProcess():
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    os.system()
+    # os.system('conda env create -f environment. yml') # creating the conda env, from conda prompt
     # backend_process
     backend_process = Process(target=runBackendProcess)
     backend_process.start()
