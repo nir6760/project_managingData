@@ -8,7 +8,8 @@ def runBackendProcess():
     print("----------Running Backend...------------")
     #os.system("python main.py")
     #subprocess.check_call('python -m flask run', shell=True)
-    subprocess.check_call('python main.py', shell=True)
+    #subprocess.check_call('python main.py', shell=True)
+    subprocess.check_call('activate_env_and_run.bat', shell=True)
 
 
 def runFrontedProcess():

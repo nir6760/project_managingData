@@ -20,7 +20,7 @@ Configuration for the project are at:
  
 
 How to start?
-ALL STEPS SHOULD EXECUTE FROM CONDA ENVIRONMENT! (with anaconda prompt)
+ALL STEPS SHOULD EXECUTE FROM CONDA ENVIRONMENT! (try from cmd, if it doesn't work try with anaconda prompt).
 1. create a new conda environment with the environment.yml file.
 2. Run main.py which will run the backend of the app. 
 (initialize and connect to postgres DB, run the flask server and the telegram server).
