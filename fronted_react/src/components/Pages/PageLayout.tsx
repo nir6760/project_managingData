@@ -1,14 +1,13 @@
 import React from 'react';
 import '../../App.css';
-import { Character } from '../../types';
 import { About } from './AboutPage/About';
+import { AddAdmin } from './AddAdminPage/AddAdmin';
+import { AdminList } from './AdminList/AdminList';
 import { FAQ } from './FAQPage/FAQ';
 import { Home } from './HomePage/Home';
 import { NewPoll } from './NewPollPage/NewPoll';
 import { PollsResults } from './PollsResultsPage/PollsResults';
-import { AddAdmin } from './AddAdminPage/AddAdmin';
 import { SignIn } from './UnAuth/SignIn';
-import { AdminList } from './AdminList/AdminList';
 
 export interface PageLayoutProps {
     page: number;

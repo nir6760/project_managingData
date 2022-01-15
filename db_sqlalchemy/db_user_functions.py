@@ -256,11 +256,11 @@ def creatHistogramForSpecificPoll(token, id_poll):
         answers_for_poll_exists, answer_for_poll_dict = getAnswersForPollByAdmin(token, id_poll)
         if answers_for_poll_exists:
             for key, value in answer_for_poll_dict.items():
-                poll_content = numbers_answers_dict[value]
-                if value in answers_hist_dict:
-                    answers_hist_dict[poll_content] += 1
+                answer_str = numbers_answers_dict[value]
+                if answer_str in answers_hist_dict:
+                    answers_hist_dict[answer_str] += 1
                 else:
-                    answers_hist_dict[poll_content] = 1
+                    answers_hist_dict[answer_str] = 1
     for key, value in answers_hist_dict.items():
         result_lst.append({'Answer': key, 'Votes': value})
 

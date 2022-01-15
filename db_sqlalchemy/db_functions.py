@@ -176,7 +176,11 @@ def test_users_answers():
     insert_user_answer(1, id_poll1, 0)
     insert_user_answer(3, id_poll1, 2)
     insert_user_answer(2, id_poll1, 2)
+
     insert_user_answer(2, id_poll2, 3)
+    insert_user_answer(1, id_poll2, 4)
+    insert_user_answer(3, id_poll2, 3)
+
     print(is_a_user_answer("1", id_poll1))
     print(is_a_user_answer("1", id_poll2))
     print(getAnswersForPoll(id_poll1))
@@ -211,7 +215,7 @@ def test_admins_polls():
     id_poll3 = 3
 
     insert_admin_poll("nir6760", id_poll1)
-    # insert_admin_poll("nir6760", id_poll2)
+    insert_admin_poll("nir6760", id_poll2)
     insert_admin_poll("nir6760", id_poll3)
 
     print(getAssociatesAdminsToPoll(id_poll1))
@@ -242,8 +246,12 @@ if __name__ == '__main__':
     print(getAnswersForPollByAdmin("nir6760", 1))
     print()
     print("*********************************************************")
-    #print(creatHistogramForSpecificPoll("nir6760", 2))
+    print(getFullPollData(2))
+    print()
+    print(getAnswersForPoll(2))
+    print()
+    print(creatHistogramForSpecificPoll("nir6760", 2))
     # print()
-    print(getAdminsList())
+    #print(getAdminsList())
     print("*********************************************************")
     print(getChatIdLstToSend(["1_0", "2_3"]))

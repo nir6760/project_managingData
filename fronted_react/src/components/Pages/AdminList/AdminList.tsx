@@ -73,12 +73,12 @@ export const AdminList: React.FC<AdminListProps> = ({
                     console.log("inside fetchedData");
                     console.log(fetchedData);
                     setFetchingData(false);
-                    
+
                     setFoundUsers(fetchedData);
                     setAllUsers(fetchedData);
 
                     // setFetching is false here
-                
+
 
                 }
                 else {

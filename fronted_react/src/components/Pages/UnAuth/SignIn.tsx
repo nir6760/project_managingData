@@ -1,57 +1,57 @@
-import * as React from 'react';
-import Avatar from '@mui/material/Avatar';
-import Button from '@mui/material/Button';
-import TextField from '@mui/material/TextField';
-import Box from '@mui/material/Box';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
-import Typography from '@mui/material/Typography';
+import Avatar from '@mui/material/Avatar';
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import { serverPath,wrap64ForSend, extract64ForRecive} from '../../../app-constants';
+import TextField from '@mui/material/TextField';
+import Typography from '@mui/material/Typography';
+import * as React from 'react';
+import { extract64ForRecive, serverPath, wrap64ForSend } from '../../../app-constants';
 
 async function loginUser(credentials: any) {
-//   try {
-//     axios.post(`${serverPath}/register_admin`, credentials)
-//       .then(function (response) {
-//         console.log(response);
-//       })
-//       .catch(function (error) {
-//         console.log("what is");
-//         console.log(error);
-//       });
-//   }
-//   catch (e) {
-//     console.log(e);
-//   }
+  //   try {
+  //     axios.post(`${serverPath}/register_admin`, credentials)
+  //       .then(function (response) {
+  //         console.log(response);
+  //       })
+  //       .catch(function (error) {
+  //         console.log("what is");
+  //         console.log(error);
+  //       });
+  //   }
+  //   catch (e) {
+  //     console.log(e);
+  //   }
 
   //Simple POST request with a JSON body using fetch
-  let token:string = "no_token";
-  let my_admin_name:string = "no_name";
-  let connection:boolean = true;
+  let token: string = "no_token";
+  let my_admin_name: string = "no_name";
+  let connection: boolean = true;
 
   const requestOptions1 = {
 
     method: 'POST',
     body: JSON.stringify(credentials)
   };
-    try {
-      var response = await fetch(`${serverPath}/login_admin`,requestOptions1);
-      var response_json = await response.json();
-      if(!response_json.hasOwnProperty("token")){
-        return {connection ,token, my_admin_name}
-      }
-      token = response_json['token'];
-      token = extract64ForRecive(token)
-      my_admin_name = response_json['admin_name'];
+  try {
+    var response = await fetch(`${serverPath}/login_admin`, requestOptions1);
+    var response_json = await response.json();
+    if (!response_json.hasOwnProperty("token")) {
+      return { connection, token, my_admin_name }
+    }
+    token = response_json['token'];
+    token = extract64ForRecive(token)
+    my_admin_name = response_json['admin_name'];
   } catch (e) {
     console.log(e);
     connection = false;
     console.error('connection error ');
     alert('Connection Error - Please check your internet connection');
-      //console.error(e);
+    //console.error(e);
   }
 
-  return {connection, token, my_admin_name}
+  return { connection, token, my_admin_name }
 }
 
 const theme = createTheme();
@@ -63,7 +63,7 @@ export interface SignInProps {
 export const SignIn: React.FC<SignInProps> = ({
   setToken,
 }) => {
-  
+
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
@@ -74,14 +74,14 @@ export const SignIn: React.FC<SignInProps> = ({
       return;
     }
     //login user
-    const {connection, token, my_admin_name} = await loginUser({
+    const { connection, token, my_admin_name } = await loginUser({
       admin_name: admin_name,
-      password: wrap64ForSend(password!==null? password.toString(): "no_pass")
+      password: wrap64ForSend(password !== null ? password.toString() : "no_pass")
     });
-    if(connection === false){
+    if (connection === false) {
       return;
     }
-    
+
     if (token && token !== "no_token") {
       localStorage.setItem('admin_name', my_admin_name);
       localStorage.setItem('page_auth', '3');
@@ -131,7 +131,7 @@ export const SignIn: React.FC<SignInProps> = ({
               autoComplete="current-password"
             />
             <Button
-            
+
               type="submit"
               fullWidth
               variant="contained"
@@ -140,7 +140,7 @@ export const SignIn: React.FC<SignInProps> = ({
               Sign In
             </Button>
           </Box>
-          
+
         </Box>
       </Container>
     </ThemeProvider>

@@ -1,21 +1,18 @@
-import React, { useLayoutEffect, useState } from 'react';
-import '../../../App.css';
-import Button from '@mui/material/Button';
-import TextField from '@mui/material/TextField';
+import { FormControl, FormControlLabel, FormLabel, Radio, RadioGroup } from '@mui/material';
 import Box from '@mui/material/Box';
-import Typography from '@mui/material/Typography';
+import Button from '@mui/material/Button';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import 'antd/dist/antd.css';
+import TextField from '@mui/material/TextField';
+import Typography from '@mui/material/Typography';
 import { Table } from 'antd';
-import { serverPath, wrap64ForSend } from '../../../app-constants';
-import useToken from '../../../useToken';
-import { useEffect } from 'react';
-import ListBody from 'antd/lib/transfer/ListBody';
-import ReactDOM from 'react-dom';
+import 'antd/dist/antd.css';
 import _ from 'lodash';
+import React, { useState } from 'react';
+import { serverPath, wrap64ForSend } from '../../../app-constants';
+import '../../../App.css';
+import useToken from '../../../useToken';
 
-import {  FormControl, FormControlLabel, FormLabel, Radio, RadioGroup } from '@mui/material';
 
 async function sendPoll(credentials: any) {
     //Simple POST request with a JSON body using fetch

@@ -1,17 +1,13 @@
-import datetime
-import json
-
-import telegram
 from flask import request, jsonify
-
-from configuration.config import server_port, local_host, super_admin_name, super_admin_password, super_admin_token
+import asyncio
+from configuration.config import server_port, local_host, super_admin_token
 from db_sqlalchemy.db_functions import *
 
 
 from exception_types import DBException
 from db_sqlalchemy.manytomany.db_server import myApp
 
-from aiogram import Bot, Dispatcher, executor, types
+from aiogram import Bot, Dispatcher
 from flask_cors import cross_origin
 
 import base64
@@ -191,6 +187,7 @@ def run_app():
             return jsonify(error=send_back), 500
     ## ***********************************************admin post ***********************************************
     @app.route('/login_admin', methods=['POST'])
+    @cross_origin()
     def login_admin():
         try:
             data = request.get_json(force=True)
@@ -220,6 +217,7 @@ def run_app():
             # response.headers.add("Access-Control-Allow-Origin", "*")
             return response
     @app.route('/register_admin', methods=['POST'])
+    @cross_origin()
     def register_admin():
         try:
             data = request.get_json(force=True)
@@ -280,6 +278,7 @@ def run_app():
             return jsonify(error=send_back), 500
 
     @app.route('/admins_name_list', methods=['POST'])
+    @cross_origin()
     def admins_name_list():
         try:
             data = request.get_json(force=True)
@@ -338,6 +337,7 @@ def run_app():
 
     ## ***********************************************poll post ***********************************************
     async def send_a_poll(users_chat_id_lst, poll_content, numbers_choices_dict):
+
         answers_lst = list(numbers_choices_dict.values())
         poll_id_telegram_lst = []
         # await dp.bot.send_message(1332261387, 'gfgfdgdf')
@@ -365,7 +365,8 @@ def run_app():
         return True
 
     @app.route('/register_and_send_poll', methods=['POST'])
-    async def register_and_send_poll():
+    @cross_origin()
+    def register_and_send_poll():
         try:
             data = request.get_json(force=True)
             token = decode_base64(data['token'])
@@ -395,7 +396,9 @@ def run_app():
                     insert_admin_poll(token, id_poll)  # token admin exists because registration poll is from the UI
                     send_back = 'poll have been registered'
                     # send a poll
-                    res_sending = await send_a_poll_and_register_to_poll_telegram(id_poll, users_chat_id_lst,poll_content, numbers_choices_dict)
+                    asyncio.set_event_loop(asyncio.new_event_loop())
+                    loop = asyncio.get_event_loop()
+                    res_sending = loop.run_until_complete(send_a_poll_and_register_to_poll_telegram(id_poll, users_chat_id_lst,poll_content, numbers_choices_dict))
                     if res_sending:
                         send_back = 'Poll has been sent'
                         return jsonify(message_back=send_back)
@@ -425,6 +428,7 @@ def run_app():
 
 
     @app.route('/get_poll_details', methods=['POST'])
+    @cross_origin()
     def get_poll_details():
         try:
             data = request.get_json(force=True)
@@ -450,6 +454,7 @@ def run_app():
             return jsonify(error=send_back), 500
     ## ***********************************************data polls and answers post ***********************************************
     @app.route('/get_poll_answers', methods=['POST'])
+    @cross_origin()
     def get_poll_answers():
         try:
             data = request.get_json(force=True)
@@ -478,6 +483,7 @@ def run_app():
             return jsonify(error=send_back), 500
 
     @app.route('/get_associated_polls', methods=['POST'])
+    @cross_origin()
     def get_associated_polls():
         try:
             data = request.get_json(force=True)

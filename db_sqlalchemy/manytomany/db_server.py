@@ -74,10 +74,10 @@ class myApp(metaclass=Singleton):
             def __init__(self, admin_name, password, token=None):
                 self.admin_name = admin_name
                 self.password = generate_password_hash(password)
-                if token is not None:
+                if token is None:
                     self.token = generate_password_hash("a!"+admin_name+"23$"+password+"1D^")
                 else:
-                    self.token = generate_uuid()
+                    self.token = token
 
             def verify_password(self, pwd):
                 return check_password_hash(self.password, pwd)

@@ -5,13 +5,22 @@
 Full project which give service for admins for sending polls and view statistics from users at PollSBot channel on Telegram.
 
 Note for configuration:
-Configuration for the project are at
+Configuration for the project are at:
+<br/>
  Backend - configuration\config.py - are the configuration for connecting postgres, bot api and flask-server.
+ <br/>
  Fronted - fronted_react/src/app-constants - the server path address for react to send request from.
+ <br/>
  Notice that server path on the fronted should matched the server path of the flask-server at the backend! (host and port).
+ <br/>
+ Also, You might encounter Cors-Policy blocking on the fronted side, if so, download, install and activate
+ Allow CORS: Access-Control-Allow-Origin extension for Google Chrome. <br/>
+ On the link : 
+ https://chrome.google.com/webstore/detail/allow-cors-access-control/lhobafahddgcelffkeicbaginigeejlf?hl=en
  
 
 How to start?
+ALL STEPS SHOULD EXECUTE FROM CONDA ENVIRONMENT! (with anaconda prompt)
 1. create a new conda environment with the environment.yml file.
 2. Run main.py which will run the backend of the app. 
 (initialize and connect to postgres DB, run the flask server and the telegram server).
