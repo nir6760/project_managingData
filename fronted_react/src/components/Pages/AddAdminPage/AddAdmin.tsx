@@ -7,9 +7,9 @@ import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { serverPath, wrap64ForSend } from '../../../app-constants';
-import useToken from '../../../useToken';
 import { styled } from '@mui/styles';
 import { Table } from '@mui/material';
+import useToken from '../../../useToken';
 
 
 async function signUpUser(credentials: any) {
@@ -95,10 +95,10 @@ export const AddAdmin = () => {
 
   return (
     <ThemeProvider theme={theme}>
-      <h1> register An new Admin </h1>
+      <h1> Register a new admin </h1>
       <Container component="main" maxWidth="xs">
         <Typography component="h1" variant="h6">
-          Insert a uniqe username and a password for registration
+          Insert a unique username and a password for registration
         </Typography>
         <Box
           sx={{

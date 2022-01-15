@@ -36,8 +36,10 @@ def unionLists(lst1, lst2):
 
 # get chat ids as requested
 def getChatIdLstToSend(idPoll_answer_lst, union=True):
-    # result_chat_id_lst = getAllUsersChatIdsLst()
-    result_chat_id_lst = []
+    if not union: # intersection
+        result_chat_id_lst = getAllUsersChatIdsLst()
+    else:
+        result_chat_id_lst = []
     for idPoll_answer in idPoll_answer_lst:
         curr_id_poll, curr_answer_num = parseIdPollAnswer(idPoll_answer)
         if curr_id_poll is not None and curr_answer_num is None:
@@ -121,6 +123,11 @@ def test_admins():
     print('************** admins **************')
     insert_admin_and_token("nir", "123456", "nir6760")
     insert_admin("nir6769@gmail.com", "123456")
+    print(getTokenAndNameByAdminNamePassword("nir", "123456"))
+    print(getTokenAndNameByAdminNamePasswordAndUpdate("nir", "123456"))
+    print(getTokenAndNameByAdminNamePasswordAndUpdate("nir", "123456"))
+    print(getTokenAndNameByAdminNamePassword("nir", "123456"))
+    print('************** admisdfdsfdsfdsfdsfns **************')
     print(is_a_admin("nir6760@gmail.com"))
     print(is_a_admin("nir6769@gmail.com"))
     print(is_a_admin_with_password("nir6760@gmail.com", "123456"))

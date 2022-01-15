@@ -15,8 +15,7 @@ import ListBody from 'antd/lib/transfer/ListBody';
 import ReactDOM from 'react-dom';
 import _ from 'lodash';
 
-import { styled } from '@mui/styles';
-import { Checkbox, FormControl, FormControlLabel, FormGroup, FormLabel, Radio, RadioGroup } from '@mui/material';
+import {  FormControl, FormControlLabel, FormLabel, Radio, RadioGroup } from '@mui/material';
 
 async function sendPoll(credentials: any) {
     //Simple POST request with a JSON body using fetch
@@ -51,9 +50,7 @@ async function sendPoll(credentials: any) {
 }
 const theme = createTheme();
 
-const MyTextField = styled(TextField)({
-    background: 'linear-gradient(45deg, #b3e5fc 10%, white 100%)',
-});
+
 
 export interface TableElementProps {
     columns: any;
@@ -94,6 +91,7 @@ export const NewPoll = () => {
     };
 
     function handleAnswersRemoveClick(index: string) {
+        console.log('index is' + index);
         const list = [...answersList];
         list.splice(+index, 1);
         setAnswersList(list);
@@ -150,21 +148,24 @@ export const NewPoll = () => {
             }
             const editDataToViewFilter = (fetchedData: any) => {
                 var fetchedLst = [];
+                if (fetchedData) {
 
-                for (let i = 0; i < fetchedData.length; i++) {
-                    var currChildrenLst = [];
-                    for (let j = 0; j < fetchedData[i]['numbers_answers_lst'].length; j++) {
-                        currChildrenLst.push({
-                            key: `${fetchedData[i]['id_poll']}_${j}`,
-                            data: fetchedData[i]['numbers_answers_lst'][j],
-                        });
+
+                    for (let i = 0; i < fetchedData.length; i++) {
+                        var currChildrenLst = [];
+                        for (let j = 0; j < fetchedData[i]['numbers_answers_lst'].length; j++) {
+                            currChildrenLst.push({
+                                key: `${fetchedData[i]['id_poll']}_${j}`,
+                                data: fetchedData[i]['numbers_answers_lst'][j],
+                            });
+                        }
+
+                        fetchedLst.push({
+                            key: `${fetchedData[i]['id_poll']}`,
+                            data: fetchedData[i]['poll_content'],
+                            children: currChildrenLst
+                        })
                     }
-
-                    fetchedLst.push({
-                        key: `${fetchedData[i]['id_poll']}`,
-                        data: fetchedData[i]['poll_content'],
-                        children: currChildrenLst
-                    })
                 }
                 console.log(fetchedLst);
                 setFetchingData(false);
@@ -234,11 +235,11 @@ export const NewPoll = () => {
         for (let j = 0; j < answers.length; j++) {
             const currCheck = answers[j];
             if (!_.isString(currCheck) || currCheck === "") {
-                alert('All poll answers can\'t be empty and must be uniqe, with least 2 possible choices');
+                alert('All poll answers can\'t be empty and must be unique, with least 2 possible choices');
                 return;
             }
             if (choicesHist.hasOwnProperty(`${currCheck}`)) {
-                alert('All poll answers can\'t be empty, with least 2 uniqe choices');
+                alert('All poll answers can\'t be empty, with least 2 unique choices');
                 return;
             } else {
                 choicesHist[currCheck] = (choicesHist[currCheck] || 0) + 1;
@@ -329,8 +330,8 @@ export const NewPoll = () => {
                                         onChange={e => handleAnswersInputChange(e, i)}
                                     />
                                     <div className="answers-box">
-                                        {answersList.length !== 1 && <button className='add-remove-button' onClick={() => handleAnswersRemoveClick(i.toString())}>-</button>}
-                                        {answersList.length - 1 === i && <button className='add-remove-button' onClick={handleAnswersAddClick}>+</button>}
+                                        {answersList.length !== 1 && <Button  className='add-remove-button' onClick={() => handleAnswersRemoveClick(i.toString())}>Remove</Button>}
+                                        {answersList.length - 1 === i && <Button className='add-remove-button' onClick={handleAnswersAddClick}>Add</Button>}
                                     </div>
                                 </div>
                             );

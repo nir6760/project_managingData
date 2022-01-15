@@ -81,5 +81,6 @@ dependencies:
     - tzdata==2021.5
     - tzlocal==4.1
     - urllib3==1.26.7
+    - waitress==2.0.0
     - werkzeug==2.0.2
 prefix: D:\nir67\Anaconda\AnacondaFiles\envs\managingData_projenv

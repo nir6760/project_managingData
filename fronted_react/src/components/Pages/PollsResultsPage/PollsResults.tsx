@@ -10,7 +10,6 @@ import Select from '@mui/material/Select';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import * as am5 from "@amcharts/amcharts5";
 import * as am5percent from "@amcharts/amcharts5/percent";
-import { styled } from '@mui/styles';
 import { serverPath, wrap64ForSend } from '../../../app-constants';
 import useToken from '../../../useToken';
 
@@ -49,12 +48,11 @@ async function getAnswersHistogram(credentials: any) {
 }
 
 
-const MySelect = styled(Select)({
-    background: 'linear-gradient(45deg, #b3e5fc 10%, white 100%)',
-});
+
 
 export const PollsResults = () => {
     localStorage.setItem('pageAuth', '5');
+    const [firstresultsBool, setfirstResultsBoll] = React.useState(false);
     const [fetchingData, setFetchingData] = React.useState(true);
     const [firstSelected, setfirstSelected] = React.useState(false);
     interface Dict {
@@ -63,7 +61,6 @@ export const PollsResults = () => {
     }
     const [questionData, setquestionData] = React.useState<Dict[]>();
     const { token, setToken } = useToken();
-
 
     // const myQuestions = [
     //     { q_id: 0, question: 'How are you?' },
@@ -108,14 +105,16 @@ export const PollsResults = () => {
             }
             const editDataToViewQuestions = (fetchedData: any) => {
                 var fetchedLst = [];
-                for (let i = 0; i < fetchedData.length; i++) {
-                    var currDict = {
-                        q_id: `${fetchedData[i]['id_poll']}`,
-                        question: `${fetchedData[i]['poll_content']}    - Was asked at ${fetchedData[i]['date']}`,
-                    };
-                    fetchedLst.push(currDict)
-                    if (i === 0) {
-                        setQuestionID(fetchedData[i]['id_poll']);
+                if (fetchedData) {
+                    for (let i = 0; i < fetchedData.length; i++) {
+                        var currDict = {
+                            q_id: `${fetchedData[i]['id_poll']}`,
+                            question: `${fetchedData[i]['poll_content']}    - Was asked at ${fetchedData[i]['date']}`,
+                        };
+                        fetchedLst.push(currDict)
+                        if (i === 0) {
+                            setQuestionID(fetchedData[i]['id_poll']);
+                        }
                     }
                 }
                 console.log(fetchedLst);
@@ -131,46 +130,52 @@ export const PollsResults = () => {
         }).catch(console.error);
         setFetchingData(false)
     }, [])
+    let FIRSTRESULTS = [
+        { Answer: 'NO RESULTS', Votes: 0 },
+    ]
 
-    const [results, setResults] = React.useState([{}]);
+    const [results, setResults] = React.useState(FIRSTRESULTS);
+    
     const [questionID, setQuestionID] = React.useState(0);
 
     useLayoutEffect(() => {
         // Pie Chart - instantiating 
-        if(firstSelected){
-        let root = am5.Root.new("chartdiv");
-        let chart = root.container.children.push(
-            am5percent.PieChart.new(root, {})
-        );
+        if (firstSelected) {
+            let root = am5.Root.new("chartdiv");
+            let chart = root.container.children.push(
+                am5percent.PieChart.new(root, {})
+            );
 
-        // Pie Chart - add series 
-        let series = chart.series.push(
-            am5percent.PieSeries.new(root, {
-                name: "Series",
-                categoryField: "Answer",
-                valueField: "Votes"
-            })
-        );
+            // Pie Chart - add series 
+            let series = chart.series.push(
+                am5percent.PieSeries.new(root, {
+                    name: "Series",
+                    categoryField: "Answer",
+                    valueField: "Votes"
+                })
+            );
 
-        // Add legend
-        let legend = chart.children.push(am5.Legend.new(root, {
-            centerX: am5.percent(50),
-            x: am5.percent(50),
-            layout: root.horizontalLayout
-        }));
+            // Add legend
+            let legend = chart.children.push(am5.Legend.new(root, {
+                centerX: am5.percent(50),
+                x: am5.percent(50),
+                layout: root.horizontalLayout
+            }));
 
-        // Pie Chart - setting data
-        series.data.setAll(results)
-        legend.data.setAll(series.dataItems);
+            // Pie Chart - setting data
+            series.data.setAll(results)
+            legend.data.setAll(series.dataItems);
 
-        series.appear();
-        chart.appear();
+            series.appear();
+            chart.appear();
 
-        return () => {
-            root.dispose();
-        };
-    }
+            return () => {
+                root.dispose();
+            };
+        }
     }, [results]);
+
+
 
     const handleChange = async (event: any) => {
         setQuestionID(event.target.value);
@@ -193,6 +198,7 @@ export const PollsResults = () => {
             setfirstSelected(true);
             // answers have returned
             setResults(recived);
+            setfirstResultsBoll(true);
 
         }
         // if (event.target.value === 0){
@@ -212,12 +218,11 @@ export const PollsResults = () => {
             <Typography component="h1" variant="h6">
                 Select a poll for view its results
             </Typography>
-            <br></br>
             <Container component="main" maxWidth="md">
                 <Box sx={{ minWidth: 120 }}>
                     <FormControl fullWidth>
                         <InputLabel id="demo-simple-select-label">Question</InputLabel>
-                        <MySelect
+                        <Select
                             labelId="demo-simple-select-label"
                             id="demo-simple-select"
                             value={questionID}
@@ -240,10 +245,29 @@ export const PollsResults = () => {
                                 </Typography>
 
                             }
-                        </MySelect>
+                        </Select>
                     </FormControl>
                 </Box>
                 <br></br>
+                {firstresultsBool ?
+                    <div className='poll_in_numbers'>
+                        <h1>Polls Results in Numbers</h1>
+                        <div className="user-list">
+                            {results && results.length > 0 ? (
+                                results.map((result) => (
+                                    <li key={result.Answer} className="user">
+                                        <span className="user-name">{result.Answer} : </span>
+                                        <span className="user-name">{result.Votes} users voted this answer</span>
+                                    </li>
+                                ))
+                            ) : (
+                                <h1>No results found!</h1>
+                            )}
+                        </div>
+                    </div>
+                    :
+                    <br></br>
+                }
                 <br></br>
                 <div id="chartdiv" style={{ width: "100%", height: "500px" }}></div>
 

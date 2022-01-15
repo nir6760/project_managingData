@@ -36,6 +36,8 @@ export const Home: React.FC<HomeProps> = ({
                     <br />
                     <button className='nav-button' onClick={handleMouseEvent}>View the Admin List</button>
                 </Typography>
+                <br />
+                <br />
         </ThemeProvider>
     )
 }

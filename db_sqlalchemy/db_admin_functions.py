@@ -1,4 +1,7 @@
 # coding=utf-8
+from werkzeug.security import generate_password_hash
+
+from configuration.config import super_admin_name, super_admin_password
 from db_sqlalchemy.db_utils_func import getFullPollData, transformNumberAnswerDictToLst, transformNumberAnswerListToDict
 from exception_types import DBException, UseException
 from db_sqlalchemy.manytomany.db_server import myApp
@@ -212,22 +215,40 @@ def getTokenAndNameByAdminNamePassword(admin_name, password):
     result = (False, (None, None))
     my_app_instance = myApp()
     Admin = my_app_instance.Admin_class
+    try:
+        admin = Admin.query.filter_by(admin_name=admin_name).first()
+        if admin and admin.verify_password(password):
+            result = (True, (admin.token, admin.admin_name))
+        else:
+            print("no admin with this details")
+            result = (False, (None, None))
+    except exc.IntegrityError as e:
+        raise DBException
+    except Exception as e:
+        print(e)
+        raise e
+    return result
+
+# get token by specific admin details
+def getTokenAndNameByAdminNamePasswordAndUpdate(admin_name, password):
+    result = (False, (None, None))
+    my_app_instance = myApp()
+    Admin = my_app_instance.Admin_class
     session = my_app_instance.connDBParams_obj.session_factory()
 
     try:
         admin = Admin.query.filter_by(admin_name=admin_name).first()
         if admin and admin.verify_password(password):
-            list_query = session.query(Admin).filter(Admin.admin_name == admin_name).all()
-            if len(list_query) != 0:  # An empty result evaluates to False.
-                admin_name = list_query[0].admin_name
-                token = list_query[0].token
-                result = (True, (token, admin_name))
+            if admin.admin_name != super_admin_name and admin.password != super_admin_password:
+                new_token = generate_password_hash("a!"+admin.token+"1D^")
+                list_query = session.query(Admin).filter(Admin.admin_name == admin_name).update(
+                    {"token": generate_password_hash("a!"+admin.token+"1D^")})
+                result = (True, (new_token, admin.admin_name))
             else:
-                result = (False, (None, None))
+                result = (True, (admin.token, admin.admin_name))
         else:
             print("no admin with this details")
             result = (False, (None, None))
-        session.close()
     except exc.IntegrityError as e:
         raise DBException
     except Exception as e:

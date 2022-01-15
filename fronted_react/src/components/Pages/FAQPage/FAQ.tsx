@@ -13,7 +13,11 @@ export const FAQ = () => {
                     <summary>{faq.question}</summary>
                     {faq.answer}
                 </details>
-            )}                        
+            )}
+            <br>
+        </br>
+        <br>
+        </br>                        
         </div>
     )
 }

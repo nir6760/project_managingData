@@ -39,7 +39,7 @@ input {
 .nav-tab {
   display:inline;
   flex-direction: row;
-  gap: 7px;
+  gap: 12px;
   padding-bottom: 20px;
   padding-top: 10px;
   padding-left: 10px;
@@ -49,14 +49,14 @@ input {
 .nav-button {  
   outline: none;
   cursor: pointer;
-  font-weight: 600;
+  font-weight: 550;
   border-radius: 3px;
-  padding: 12px 24px;
+  padding: 12px 18px;
   border: 0;
   color: white;
   background: #1976D2;
   line-height: 1.15;
-  width: 150px;
+  width: 140px;
   font-size: 16px;
   box-shadow: 0px 0px 1px 1px  grey;
 }
@@ -76,7 +76,7 @@ input {
   color: white;
   background: #da5543;
   line-height: 1.15;
-  width: 150px;
+  width: 140px;
   font-size: 16px;
   box-shadow: 0px 0px 1px 1px  grey;
 }
@@ -95,7 +95,7 @@ input {
 }
 
 .about-page-container {
-  display: flex;
+  display:inline-block;
   flex-direction: column;
   gap: 5px;
   align-items: center;  

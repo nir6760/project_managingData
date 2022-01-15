@@ -3,7 +3,7 @@ import uuid
 from flask import Flask
 import datetime
 
-from configuration.config import bot_key
+from configuration.config import bot_key, server_port, local_host, production_mode
 from db_sqlalchemy.common.base import connDBParams
 from sqlalchemy import Column, String, INT, INTEGER, Table, ForeignKey, ForeignKeyConstraint, DATE, PrimaryKeyConstraint
 from sqlalchemy.orm import relationship
@@ -24,6 +24,9 @@ class myApp(metaclass=Singleton):
     def __init__(self):
         self.MY_TOKEN = bot_key
         self.app = Flask(__name__)
+        if production_mode:
+            from waitress import serve
+            serve(self.app, host=local_host, port=server_port)
         self.connDBParams_obj = connDBParams(app=self.app)
 
         class User(self.connDBParams_obj.db.Model):
@@ -65,14 +68,14 @@ class myApp(metaclass=Singleton):
             __tablename__ = 'admins'
             admin_name = Column(String, name="admin_name",  primary_key=True)
             password = Column(String, nullable=False)
-            token = Column(String, name="token", nullable=False, unique=True, default=generate_uuid())
+            token = Column(String, name="token", nullable=False, unique=True)
             admin_adminpoll_rel = relationship('AdminPoll', backref='Admin')  # one to many
 
             def __init__(self, admin_name, password, token=None):
                 self.admin_name = admin_name
                 self.password = generate_password_hash(password)
                 if token is not None:
-                    self.token = token
+                    self.token = generate_password_hash("a!"+admin_name+"23$"+password+"1D^")
                 else:
                     self.token = generate_uuid()
 

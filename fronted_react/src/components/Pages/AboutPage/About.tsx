@@ -13,6 +13,10 @@ export const About = () => {
         <h2>  Thechnion Institute </h2>        
         <h4> You can check the FAQ for some details about the service</h4>
         <a href='https://github.com/nir6760/project_managingData'> GitHub repo </a>
+        <br>
+        </br>
+        <br>
+        </br>
         </div>
 
     )
