@@ -200,6 +200,35 @@ def run_app():
                     token = encode_base64(token)
                     admin_name = encode_base64(token_name[1])
                     response = jsonify(token=token, admin_name=admin_name)
+                    print('user logged in')
+                    return response
+                else:
+                    send_back = "admin not exists"
+                    response = jsonify(error=send_back)
+                    return response
+            except DBException as e:
+                print(e)
+                send_back = GeneralErrorReplay
+                response = jsonify(error=send_back)
+                return response
+        except Exception as e:
+            print(e)
+            send_back = GeneralErrorReplay
+            response = jsonify(error=send_back)
+            # response.headers.add("Access-Control-Allow-Origin", "*")
+            return response
+
+    @app.route('/logout_admin', methods=['POST'])
+    @cross_origin()
+    def logout_admin():
+        try:
+            data = request.get_json(force=True)
+            token = decode_base64(data['token'])
+            try:
+                loged_out = logOutAndUpdateToken(token)
+                if loged_out:
+                    response = jsonify(message_back="logged out")
+                    print('user logged out')
                     return response
                 else:
                     send_back = "admin not exists"

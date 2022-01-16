@@ -9,6 +9,8 @@ import { NewPoll } from './NewPollPage/NewPoll';
 import { PollsResults } from './PollsResultsPage/PollsResults';
 import { SignIn } from './UnAuth/SignIn';
 
+
+
 export interface PageLayoutProps {
     page: number;
     changePage(newPage: number): void;
@@ -47,15 +49,17 @@ export const PageLayout: React.FC<PageLayoutProps> = ({
 export interface PageLayoutUnAuthProps {
     pageUnAuth: number;
     setToken(newToken: string): void;
+    changePage(newPage: number): void;
 }
 export const PageLayoutUnAuth: React.FC<PageLayoutUnAuthProps> = ({
     pageUnAuth,
     setToken,
+    changePage,
 }) => {
     switch(pageUnAuth) {
         case 0:
-            return <SignIn setToken={setToken}/>           
+            return <SignIn setToken={setToken} changePage={changePage}/>           
         default:
-            return <SignIn setToken={setToken}/>;            
+            return <SignIn setToken={setToken} changePage={changePage}/>;            
     }
 }

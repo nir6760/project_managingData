@@ -8,12 +8,10 @@ export const getAdminName = () => {
     return adminNameString
     };
 export interface HeaderProps {
-    setToken(newToken: string): void;
     changePage(newPage: number): void;
 }
 export const Header: React.FC<HeaderProps> = ({
     changePage,
-    setToken,
 }) => {
 const adminName = getAdminName();
     return (
@@ -22,7 +20,7 @@ const adminName = getAdminName();
         <div className='header-container'>
             <img src={require('./logo.png')} alt="logo" />
             
-            <Navbar setToken={setToken} changePage={changePage} />
+            <Navbar changePage={changePage} />
             
         </div>
         </>

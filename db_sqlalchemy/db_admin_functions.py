@@ -257,6 +257,26 @@ def getTokenAndNameByAdminNamePasswordAndUpdate(admin_name, password):
         session.close()
     return result
 
+# get token by specific admin details
+def logOutAndUpdateToken(token):
+    result = False
+    my_app_instance = myApp()
+    Admin = my_app_instance.Admin_class
+    session = my_app_instance.connDBParams_obj.session_factory()
+    try:
+        new_token = generate_password_hash("a!" + token + "1D^")
+        list_query = session.query(Admin).filter(Admin.token == token).update(
+            {"token": new_token})
+        session.commit()
+        result = list_query==1
+    except exc.IntegrityError as e:
+        raise DBException
+    except Exception as e:
+        print(e)
+        raise e
+    finally:
+        session.close()
+    return result
 
 ## ************************************admins_polls functions **********************************************
 # check if admin_poll exists

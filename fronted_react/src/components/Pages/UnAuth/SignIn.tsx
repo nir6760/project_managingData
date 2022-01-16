@@ -59,12 +59,14 @@ const theme = createTheme();
 
 export interface SignInProps {
   setToken(newToken: string): void;
+  changePage(newPage: number): void;
 }
 
 export const SignIn: React.FC<SignInProps> = ({
   setToken,
+  changePage,
 }) => {
-
+  changePage(3); //home for auth
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);

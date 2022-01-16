@@ -39,14 +39,14 @@ function App() {
       
       <div className="root">
          <HeaderUnAuth/>
-         <PageLayoutUnAuth pageUnAuth={pageUnAuth} setToken={setToken}/>
+         <PageLayoutUnAuth pageUnAuth={pageUnAuth} setToken={setToken} changePage={changePage}/>
       </div>
     );
   }
    return (
       
      <div className="root">
-        <Header setToken={setToken} changePage={changePage}/>
+        <Header changePage={changePage}/>
         <PageLayout  page={page} changePage={changePage}/>
      </div>
    );
