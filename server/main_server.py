@@ -41,8 +41,8 @@ def run_app():
 
     @app.route("/")
     async def index():
-        return "PoolsBot Server :)" \
-               "\nSearch channel on telegram"
+        return "PollsBot Server :)" \
+               "\nSearch PollsBot channel on telegram"
 
     ## ***********************************************users post ***********************************************
     @app.route('/register_user', methods=['POST'])
@@ -194,11 +194,11 @@ def run_app():
             admin_name = data['admin_name']
             password = decode_base64(data['password'])
             try:
-                token_exists, token_name = getTokenAndNameByAdminNamePassword(admin_name, password)
+                token_exists, token_name = getTokenAndNameByAdminNamePasswordAndUpdate(admin_name, password)
                 if token_exists:
                     token = token_name[0]
                     token = encode_base64(token)
-                    admin_name = token_name[1]
+                    admin_name = encode_base64(token_name[1])
                     response = jsonify(token=token, admin_name=admin_name)
                     return response
                 else:

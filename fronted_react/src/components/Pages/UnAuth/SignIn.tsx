@@ -42,7 +42,7 @@ async function loginUser(credentials: any) {
     }
     token = response_json['token'];
     token = extract64ForRecive(token)
-    my_admin_name = response_json['admin_name'];
+    my_admin_name = extract64ForRecive(response_json['admin_name']);
   } catch (e) {
     console.log(e);
     connection = false;
@@ -84,7 +84,8 @@ export const SignIn: React.FC<SignInProps> = ({
 
     if (token && token !== "no_token") {
       localStorage.setItem('admin_name', my_admin_name);
-      localStorage.setItem('page_auth', '3');
+      localStorage.setItem('PageAuth', '3');
+      //console.log(token);
       setToken(token);
     }
     else {

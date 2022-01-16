@@ -239,13 +239,12 @@ def getTokenAndNameByAdminNamePasswordAndUpdate(admin_name, password):
     try:
         admin = Admin.query.filter_by(admin_name=admin_name).first()
         if admin and admin.verify_password(password):
-            if admin.admin_name != super_admin_name and admin.password != super_admin_password:
-                new_token = generate_password_hash("a!"+admin.token+"1D^")
-                list_query = session.query(Admin).filter(Admin.admin_name == admin_name).update(
-                    {"token": generate_password_hash("a!"+admin.token+"1D^")})
-                result = (True, (new_token, admin.admin_name))
-            else:
-                result = (True, (admin.token, admin.admin_name))
+            new_token = generate_password_hash("a!" + admin.token + "1D^")
+            list_query = session.query(Admin).filter(Admin.admin_name == admin_name).update(
+                {"token": new_token})
+            session.commit()
+            result = (True, (new_token, admin.admin_name))
+
         else:
             print("no admin with this details")
             result = (False, (None, None))
@@ -275,7 +274,6 @@ def is_a_admin_poll(token, id_poll):
             else:
                 print("no admin_poll with this details")
                 result = False
-        session.close()
     except exc.IntegrityError as e:
         print(e)
         raise DBException

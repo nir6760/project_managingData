@@ -125,6 +125,7 @@ def test_admins():
     insert_admin("nir6769@gmail.com", "123456")
     print(getTokenAndNameByAdminNamePassword("nir", "123456"))
     print(getTokenAndNameByAdminNamePasswordAndUpdate("nir", "123456"))
+    print(getTokenAndNameByAdminNamePassword("nir", "123456"))
     print(getTokenAndNameByAdminNamePasswordAndUpdate("nir", "123456"))
     print(getTokenAndNameByAdminNamePassword("nir", "123456"))
     print('************** admisdfdsfdsfdsfdsfns **************')

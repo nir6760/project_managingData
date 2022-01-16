@@ -2,7 +2,6 @@ import React from 'react';
 import './App.css';
 import { Header, HeaderUnAuth } from './components/AppHeader/Header';
 import { PageLayout, PageLayoutUnAuth } from './components/Pages/PageLayout';
-import { Character } from './types';
 import useToken from './useToken';
 
 
@@ -19,7 +18,6 @@ function App() {
         console.log(`pageAuth is ${pageAuthInt}`);
       }
 
-  const [characters, setCharacters] = React.useState<Character[]>([]);
   const [page, setPage] = React.useState<number>(pageAuthInt);
   const [pageUnAuth] = React.useState<number>(pageUnAuthInt);
   const { token, setToken } = useToken();

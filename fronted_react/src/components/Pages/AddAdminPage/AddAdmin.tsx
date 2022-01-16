@@ -24,11 +24,11 @@ async function signUpUser(credentials: any) {
   try {
     var response = await fetch(`${serverPath}/register_admin`, requestOptions1);
     var response_json = await response.json();
-    console.log(response_json);
+    //console.log(response_json);
     if (response_json.hasOwnProperty('token')) {
       new_token = response_json['token'];
       my_admin_name = response_json['admin_name'];
-      console.log(response_json['token']);
+      //console.log(response_json['token']);
     }
     else {
       alert(response_json['error']);
