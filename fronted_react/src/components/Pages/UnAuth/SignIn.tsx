@@ -7,7 +7,8 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import * as React from 'react';
-import { extract64ForRecive, serverPath, wrap64ForSend } from '../../../app-constants';
+import { extract64ForRecive, wrap64ForSend } from '../../../app-constants';
+import { serverPath } from '../../../config';
 
 async function loginUser(credentials: any) {
   //   try {
@@ -84,7 +85,7 @@ export const SignIn: React.FC<SignInProps> = ({
 
     if (token && token !== "no_token") {
       localStorage.setItem('admin_name', my_admin_name);
-      localStorage.setItem('PageAuth', '3');
+      localStorage.setItem('pageAuth', '3');
       //console.log(token);
       setToken(token);
     }

@@ -10,7 +10,8 @@ import Select from '@mui/material/Select';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import * as am5 from "@amcharts/amcharts5";
 import * as am5percent from "@amcharts/amcharts5/percent";
-import { serverPath, wrap64ForSend } from '../../../app-constants';
+import { wrap64ForSend } from '../../../app-constants';
+import { serverPath } from '../../../config';
 import useToken from '../../../useToken';
 
 const theme = createTheme();

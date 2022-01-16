@@ -6,7 +6,8 @@ import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import { styled } from '@mui/styles';
 import React from 'react';
-import { serverPath, wrap64ForSend } from '../../../app-constants';
+import {wrap64ForSend } from '../../../app-constants';
+import { serverPath } from '../../../config';
 import '../../../App.css';
 import useToken from '../../../useToken';
 

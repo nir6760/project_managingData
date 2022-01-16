@@ -9,7 +9,8 @@ import { Table } from 'antd';
 import 'antd/dist/antd.css';
 import _ from 'lodash';
 import React, { useState } from 'react';
-import { serverPath, wrap64ForSend } from '../../../app-constants';
+import { wrap64ForSend } from '../../../app-constants';
+import { serverPath } from '../../../config';
 import '../../../App.css';
 import useToken from '../../../useToken';
 
