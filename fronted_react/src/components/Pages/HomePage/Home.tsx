@@ -34,7 +34,7 @@ export const Home: React.FC<HomeProps> = ({
                     Enjoy 😄
                     <br />
                     <br />
-                    <button className='nav-button' onClick={handleMouseEvent}>View the Admin List</button>
+                    <button className='nav-button' onClick={handleMouseEvent}>View the Admins List</button>
                 </Typography>
                 <br />
                 <br />

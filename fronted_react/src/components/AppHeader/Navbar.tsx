@@ -66,7 +66,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 break;
             case 'Sign Out':
                 setToken("no_token");
-                changePage(3);
+                changePage(1);
                 //logout user
                 const { connection, was_error } = await logoutUser({
                     token: wrap64ForSend(token),
