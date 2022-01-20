@@ -76,16 +76,19 @@ def insert_only_one_choice(id_poll, number, answer):
         print(e)
         raise e
     finally:
+
         session.close()
 
 
 
 # insert a new poll with choices to Poll db and Choice db
 def insert_poll(poll_content, numbers_choices_dict):
+    minimum_allowed_choices = 2
     # check for unique values
     id_poll = None
     flag = len(numbers_choices_dict) != len(set(numbers_choices_dict.values()))
-    if flag:
+    flag_min = len(set(numbers_choices_dict.values())) < minimum_allowed_choices
+    if flag or flag_min:
         raise UseException
     try:
         id_poll, poll_content = insert_only_poll(poll_content)

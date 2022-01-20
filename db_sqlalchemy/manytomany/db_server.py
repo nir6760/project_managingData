@@ -51,7 +51,7 @@ class myApp(metaclass=Singleton):
             __tablename__ = 'polls'
 
             id_poll = Column(INTEGER, name="id_poll", primary_key=True)
-            poll_content = Column(String)
+            poll_content = Column(String, nullable=False)
             date = Column(DATE)
             poll_choice_rel = relationship('Choice', backref='Poll') # one to many
             poll_adminpoll_rel = relationship('AdminPoll', backref='Poll')  # one to many

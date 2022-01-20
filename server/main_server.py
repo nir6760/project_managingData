@@ -41,6 +41,7 @@ def run_app():
 
     @app.route("/")
     async def index():
+        #return request.environ.get('SERVER_PROTOCOL')
         return "PollsBot Server :)" \
                "\nSearch PollsBot channel on telegram"
 
