@@ -25,15 +25,13 @@ How to start?
 <br/>
 
 ALL STEPS SHOULD EXECUTE FROM CONDA ENVIRONMENT, working on win10 os! (try  from cmd, if it doesn't work try with anaconda prompt).
- <br/>
-1. create a new conda environment with the environment.yml file.
 <br/>
-note that the next steps you can do by run run_project.py script, but do the dependencies first!
+Note that 2 and 3 steps can be done by by run run_project.py script.
 <br/>
-2. Run main.py which will run the backend of the app. 
+1. Create a new conda environment with the environment.yml file.
+2. Run main.py which will run the backend of the app  
 (initialize and connect to postgres DB, run the flask server and the telegram server).
- <br/>
-3. run npm install and  npm start inside the fronted_react to run the react server and open your browser.
+3. Run npm install and  npm start inside the fronted_react to run the react server and open your browser.
 
 
 
